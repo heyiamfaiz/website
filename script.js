@@ -1,32 +1,4 @@
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Faiz",
-  "jobTitle": "Digital Strategist",
-  "description": "I will help you creating an online marketing strategy, which makes you achieve your both professional and personal goals.",
-  "url": "https://heyiamfaiz.com/",
-  "image": "https://heyiamfaiz.com/logo.jpg",
-  "sameAs": [
-    "https://www.youtube.com/@heyiamfaiz",
-    "https://www.instagram.com/heyiamfaiz"
-  ],
-  "knowsAbout": [
-    "Digital Marketing",
-"online marketing",
-    "Meta Ads",
-    "WhatsApp API",
-    "Online Marketing Strategy",
-    "Content Marketing",
-    "WooCommerce"
-  ],
-  "worksFor": {
-    "@type": "Organization",
-    "name": "Self-employed"
-  }
-}
-</script>/*
-   ===============================
+===============================
    DARK MODE — CORRECT & RELIABLE
 ================================ */
 
