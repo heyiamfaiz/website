@@ -12,4 +12,19 @@
     <priority>0.8</priority>
   </url>
 </urlset>
-
+<url>
+    <loc>https://heyiamfaiz.com/terms-&-conditions.html</loc>
+    <priority>1.0</priority>
+  </url>
+<url>
+    <loc>https://heyiamfaiz.com/refund-policy.html</loc>
+    <priority>1.0</priority>
+  </url>
+<url>
+    <loc>https://heyiamfaiz.com/privacy-policy.html</loc>
+    <priority>1.0</priority>
+  </url>
+<url>
+    <loc>https://heyiamfaiz.com/marketing-sabha.html</loc>
+    <priority>1.0</priority>
+  </url>
