@@ -6,12 +6,10 @@
     <loc>https://heyiamfaiz.com/</loc>
     <priority>1.0</priority>
   </url>
-
-  <url>
+<url>
     <loc>https://heyiamfaiz.com/about.html</loc>
     <priority>0.8</priority>
   </url>
-</urlset>
 <url>
     <loc>https://heyiamfaiz.com/terms-&-conditions.html</loc>
     <priority>1.0</priority>
@@ -28,3 +26,4 @@
     <loc>https://heyiamfaiz.com/marketing-sabha.html</loc>
     <priority>1.0</priority>
   </url>
+  </urlset>
