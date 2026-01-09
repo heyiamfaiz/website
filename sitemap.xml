@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://heyiamfaiz.com/</loc>
     <priority>1.0</priority>
   </url>
-<url>
+  
+  <url>
+    <loc>https://heyiamfaiz.com/marketing-sabha.html</loc>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://heyiamfaiz.com/about.html</loc>
     <priority>0.8</priority>
   </url>
-<url>
+  
+  <url>
     <loc>https://heyiamfaiz.com/terms-&-conditions.html</loc>
-    <priority>1.0</priority>
+    <priority>0.5</priority>
   </url>
-<url>
+  <url>
     <loc>https://heyiamfaiz.com/refund-policy.html</loc>
-    <priority>1.0</priority>
+    <priority>0.5</priority>
   </url>
-<url>
+  <url>
     <loc>https://heyiamfaiz.com/privacy-policy.html</loc>
-    <priority>1.0</priority>
+    <priority>0.5</priority>
   </url>
-<url>
-    <loc>https://heyiamfaiz.com/marketing-sabha.html</loc>
-    <priority>1.0</priority>
-  </url>
-  </urlset>
+</urlset>
