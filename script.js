@@ -56,7 +56,7 @@ tabs.forEach(tab => {
     tab.classList.add('active');
 
     cards.forEach(card => {
-      const cardTypes = card.dataset.type.split(',').map(t => t.trim());
+      const cardTypes = card.dataset.type.split(',');
 
       if (type === 'all' || cardTypes.includes(type)) {
         card.style.display = 'block';
