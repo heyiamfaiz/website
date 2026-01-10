@@ -56,13 +56,11 @@ tabs.forEach(tab => {
     tab.classList.add('active');
 
     cards.forEach(card => {
-      const cardTypes = card.dataset.type.split(',');
+  const cardTypes = card.dataset.type.split(',').map(t => t.trim());
 
-      if (type === 'all' || cardTypes.includes(type)) {
-        card.style.removeProperty('display'); // ✅ KEY FIX
-      } else {
-        card.style.display = 'none';
-      }
-    });
-  });
+  if (type === 'all' || cardTypes.includes(type)) {
+    card.style.removeProperty('display'); // ✅ SHOW (use CSS default)
+  } else {
+    card.style.display = 'none'; // ❌ HIDE
+  }
 });
