@@ -51,7 +51,7 @@ tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     const type = tab.dataset.type;
 
-    // active tab UI
+    // tab active state
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
@@ -59,7 +59,7 @@ tabs.forEach(tab => {
       const cardTypes = card.dataset.type.split(',');
 
       if (type === 'all' || cardTypes.includes(type)) {
-        card.style.display = 'block';
+        card.style.removeProperty('display'); // ✅ KEY FIX
       } else {
         card.style.display = 'none';
       }
