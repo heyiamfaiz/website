@@ -43,24 +43,27 @@ mediaQuery.addEventListener("change", (e) => {
 /* ===============================
    TABS FILTERING
 ================================ */
-
 const tabs = document.querySelectorAll('.tab');
 const cards = document.querySelectorAll('.service-card');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
-    const type = tab.dataset.type;
+    const filter = tab.dataset.filter; // ✅ FIX HERE
 
-    // tab active state
+    // active tab UI
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
     cards.forEach(card => {
-  const cardTypes = card.dataset.type.split(',').map(t => t.trim());
+      const cardTypes = card.dataset.type
+        .split(',')
+        .map(t => t.trim());
 
-  if (type === 'all' || cardTypes.includes(type)) {
-    card.style.removeProperty('display'); // ✅ SHOW (use CSS default)
-  } else {
-    card.style.display = 'none'; // ❌ HIDE
-  }
+      if (filter === 'all' || cardTypes.includes(filter)) {
+        card.style.removeProperty('display'); // show
+      } else {
+        card.style.display = 'none'; // hide
+      }
+    });
+  });
 });
