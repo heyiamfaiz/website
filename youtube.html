@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opening YouTube…</title>
+
+  <!-- SEO + safety -->
+  <meta name="robots" content="noindex, nofollow" />
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+      color: #fff;
+      text-align: center;
+    }
+    .box {
+      max-width: 320px;
+      padding: 20px;
+    }
+    .loader {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #444;
+      border-top: 3px solid #ff0000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    a {
+      color: #ff0000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Opening YouTube…</h2>
+    <div class="loader"></div>
+    <p>If nothing happens,<br>
+      <a href="https://www.youtube.com/@heyiamfaiz">tap here</a>
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var ytLink = "https://www.youtube.com/@heyiamfaiz";
+      var intentLink = "intent://www.youtube.com/@heyiamfaiz#Intent;package=com.google.android.youtube;scheme=https;end";
+
+      var isAndroid = /Android/i.test(navigator.userAgent);
+      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        window.location.href = intentLink;
+        setTimeout(function () {
+          window.location.href = ytLink;
+        }, 1500);
+      } else {
+        // iOS + Desktop
+        window.location.href = ytLink;
+      }
+    })();
+  </script>
+</body>
+</html>
