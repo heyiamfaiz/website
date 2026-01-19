@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Link Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .whatsapp-green {
+            background-color: #25D366;
+        }
+        .whatsapp-green-hover {
+            background-color: #128C7E;
+        }
+        .toast {
+            transition: opacity 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center p-4 md:p-8">
+
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden">
+        <!-- Header -->
+        <div class="whatsapp-green p-6 text-white text-center">
+            <div class="flex justify-center mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor" class="w-12 h-12">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-bold">wa.me Generator</h1>
+            <p class="text-white/80 text-sm">Create custom direct message links</p>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6 space-y-4">
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Phone Number</label>
+                <div class="relative">
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        placeholder="e.g. 15551234567" 
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition-all"
+                    >
+                </div>
+                <p class="mt-1 text-xs text-gray-500">Include country code, no "+" or spaces.</p>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Custom Message (Optional)</label>
+                <textarea 
+                    id="message" 
+                    rows="3" 
+                    placeholder="Hello! I'm interested in..." 
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none transition-all"
+                ></textarea>
+            </div>
+
+            <button 
+                onclick="generateLink()"
+                class="w-full whatsapp-green hover:whatsapp-green-hover text-white font-bold py-3 px-6 rounded-lg shadow-lg transform active:scale-[0.98] transition-all"
+            >
+                Generate Link
+            </button>
+        </div>
+
+        <!-- Result Section (Hidden by default) -->
+        <div id="result-container" class="hidden p-6 border-t border-gray-100 bg-gray-50">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Your Link</label>
+            <div class="flex items-center gap-2 mb-4">
+                <input 
+                    type="text" 
+                    id="generated-link" 
+                    readonly 
+                    class="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-md text-sm text-gray-600 focus:outline-none"
+                >
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button 
+                    onclick="copyToClipboard()"
+                    class="flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-900 text-white py-2.5 rounded-md font-medium text-sm transition-all"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    Copy Link
+                </button>
+                <button 
+                    onclick="testLink()"
+                    class="flex items-center justify-center gap-2 border border-green-500 text-green-600 hover:bg-green-50 py-2.5 rounded-md font-medium text-sm transition-all"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Test Link
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instructions / Info -->
+    <div class="max-w-md w-full mt-8 p-4 bg-white/50 backdrop-blur rounded-xl border border-white">
+        <h2 class="text-sm font-bold text-gray-800 mb-2">How it works:</h2>
+        <ul class="text-xs text-gray-600 space-y-1 list-disc pl-4">
+            <li>Type the phone number starting with the country code (e.g. 44 for UK).</li>
+            <li>Don't include any symbols like +, -, or brackets.</li>
+            <li>When someone clicks the link, their WhatsApp will open with your pre-filled message.</li>
+        </ul>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast fixed bottom-8 bg-gray-900 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 pointer-events-none flex items-center gap-2">
+        <span id="toast-message">Link copied!</span>
+    </div>
+
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.innerText = message;
+            toast.classList.remove('opacity-0');
+            toast.classList.add('opacity-100');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                toast.classList.remove('opacity-100');
+            }, 3000);
+        }
+
+        function generateLink() {
+            const phoneInput = document.getElementById('phone').value.trim();
+            const messageInput = document.getElementById('message').value.trim();
+            
+            // Clean phone number (remove everything except digits)
+            const cleanPhone = phoneInput.replace(/\D/g, '');
+            
+            if (!cleanPhone) {
+                showToast('Please enter a valid phone number.');
+                return;
+            }
+
+            let url = `https://wa.me/${cleanPhone}`;
+            
+            if (messageInput) {
+                const encodedMsg = encodeURIComponent(messageInput);
+                url += `?text=${encodedMsg}`;
+            }
+
+            document.getElementById('generated-link').value = url;
+            document.getElementById('result-container').classList.remove('hidden');
+            
+            // Scroll to results on mobile
+            window.scrollTo({
+                top: document.body.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        function copyToClipboard() {
+            const copyText = document.getElementById('generated-link');
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Link copied to clipboard!');
+                }
+            } catch (err) {
+                showToast('Unable to copy. Please copy manually.');
+            }
+        }
+
+        function testLink() {
+            const url = document.getElementById('generated-link').value;
+            if (url) {
+                window.open(url, '_blank');
+            }
+        }
+
+        // Add "Enter" key listener to inputs
+        document.getElementById('phone').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') generateLink();
+        });
+    </script>
+</body>
+</html>
+
