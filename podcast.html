@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Opening YouTube Playlist…</title>
+
+  <meta name="robots" content="noindex, nofollow" />
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #000;
+      color: #fff;
+      text-align: center;
+    }
+    .box {
+      max-width: 320px;
+      padding: 20px;
+    }
+    .loader {
+      margin: 20px auto;
+      width: 40px;
+      height: 40px;
+      border: 3px solid #444;
+      border-top: 3px solid #ff0000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    a {
+      color: #ff0000;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="box">
+    <h2>Opening Playlist…</h2>
+    <div class="loader"></div>
+    <p>If nothing happens,<br>
+      <a href="https://youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI">tap here</a>
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      var playlistWeb = "https://youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI";
+      var playlistIntent = "intent://playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI#Intent;package=com.google.android.youtube;scheme=https;end";
+
+      var isAndroid = /Android/i.test(navigator.userAgent);
+
+      if (isAndroid) {
+        window.location.href = playlistIntent;
+        setTimeout(function () {
+          window.location.href = playlistWeb;
+        }, 1500);
+      } else {
+        // iOS and Desktop
+        window.location.href = playlistWeb;
+      }
+    })();
+  </script>
+</body>
+</html>
