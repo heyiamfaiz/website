@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Opening YouTube Playlist…</title>
+  <title>Opening Playlist…</title>
 
   <meta name="robots" content="noindex, nofollow" />
 
@@ -20,7 +20,7 @@
       text-align: center;
     }
     .box {
-      max-width: 320px;
+      max-width: 340px;
       padding: 20px;
     }
     .loader {
@@ -45,29 +45,26 @@
 
 <body>
   <div class="box">
-    <h2>Opening Playlist…</h2>
+    <h2>Playlist coming soon 🚀</h2>
     <div class="loader"></div>
-    <p>If nothing happens,<br>
-      <a href="https://youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI">tap here</a>
+    <p>
+      First video is dropping soon.<br>
+      You’ll be redirected automatically.
+    </p>
+    <p style="margin-top:12px;">
+      <a href="https://www.youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI">
+        Open playlist
+      </a>
     </p>
   </div>
 
   <script>
     (function () {
-      var playlistWeb = "https://youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI";
-      var playlistIntent = "intent://playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI#Intent;package=com.google.android.youtube;scheme=https;end";
+      var playlistWeb =
+        "https://www.youtube.com/playlist?list=PLuKgy-VWbmtx3bdo48e3_2VOFR7AwEmdI";
 
-      var isAndroid = /Android/i.test(navigator.userAgent);
-
-      if (isAndroid) {
-        window.location.href = playlistIntent;
-        setTimeout(function () {
-          window.location.href = playlistWeb;
-        }, 1500);
-      } else {
-        // iOS and Desktop
-        window.location.href = playlistWeb;
-      }
+      // No forced intent until a video exists
+      window.location.href = playlistWeb;
     })();
   </script>
 </body>
