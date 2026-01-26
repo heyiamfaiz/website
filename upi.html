@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UPI One-Click Checkout</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .checkout {
+      background: #fff;
+      width: 340px;
+      padding: 24px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-bottom: 16px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .total {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #0f62fe;
+      color: #fff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="checkout">
+  <h2>One-Click Checkout</h2>
+
+  <div class="row">
+    <span>Product</span>
+    <span>₹1</span>
+  </div>
+
+  <div class="row">
+    <span>Shipping</span>
+    <span>Free</span>
+  </div>
+
+  <div class="row total">
+    <span>Total</span>
+    <span>₹1</span>
+  </div>
+
+  <button onclick="payNow()">Pay with UPI</button>
+</div>
+
+<script>
+  function payNow() {
+    const upiId = "heyfaiz@ptyes";        // your UPI ID
+    const name = "My Store";             // merchant name
+    const amount = "1.00";             // amount
+    const txnRef = "ORDER12345";          // unique order id
+    const note = "Order Payment";
+
+    const upiLink = 
+      `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}` +
+      `&am=${amount}&cu=INR&tr=${txnRef}` +
+      `&tn=${encodeURIComponent(note)}`;
+
+    window.location.href = upiLink;
+  }
+</script>
+
+</body>
+</html>
