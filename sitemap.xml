@@ -23,11 +23,7 @@
     <priority>1.0</priority>
   </url>
     <url>
-    <loc>https://heyiamfaiz.com/instagram</loc>
-    <priority>1.0</priority>
-    </url>
-    <url>
-    <loc>https://heyiamfaiz.com/youtube</loc>
+  <loc>https://heyiamfaiz.com/youtube</loc>
     <priority>1.0</priority>
   </url>
 </urlset>
