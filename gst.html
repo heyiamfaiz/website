@@ -1,0 +1,157 @@
+```react
+import React, { useState } from 'react';
+
+export default function App() {
+  const [amount, setAmount] = useState(10000);
+  const [gstRate, setGstRate] = useState(18);
+  const [gstMode, setGstMode] = useState('exclude'); // 'include' or 'exclude'
+
+  const calculateGST = () => {
+    let basePrice = 0;
+    let gstAmount = 0;
+    let totalPrice = 0;
+
+    const numericAmount = parseFloat(amount) || 0;
+
+    if (gstMode === 'exclude') {
+      basePrice = numericAmount;
+      gstAmount = numericAmount * (gstRate / 100);
+      totalPrice = numericAmount + gstAmount;
+    } else {
+      totalPrice = numericAmount;
+      basePrice = numericAmount / (1 + gstRate / 100);
+      gstAmount = totalPrice - basePrice;
+    }
+
+    return {
+      basePrice: basePrice.toFixed(2),
+      gstAmount: gstAmount.toFixed(2),
+      totalPrice: totalPrice.toFixed(2),
+    };
+  };
+
+  const results = calculateGST();
+
+  const handleSliderChange = (e) => {
+    setAmount(Number(e.target.value));
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value;
+    if (val === '') {
+      setAmount('');
+    } else {
+      setAmount(Number(val));
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 font-sans text-gray-800">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        
+        {/* Header */}
+        <div className="bg-gray-900 px-6 py-5">
+          <h1 className="text-xl font-bold text-white tracking-wide">GST Calculator</h1>
+          <p className="text-gray-400 text-sm mt-1">Precise margins for digital strategy</p>
+        </div>
+
+        <div className="p-6 space-y-6">
+          
+          {/* Amount Input & Slider */}
+          <div>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-sm font-semibold text-gray-700">Amount (₹)</label>
+              <input
+                type="number"
+                value={amount}
+                onChange={handleInputChange}
+                className="w-32 px-3 py-1.5 text-right border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all font-mono"
+              />
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="500000"
+              step="1000"
+              value={amount || 0}
+              onChange={handleSliderChange}
+              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"
+            />
+            <div className="flex justify-between text-xs text-gray-400 mt-1">
+              <span>₹0</span>
+              <span>₹5L+</span>
+            </div>
+          </div>
+
+          {/* Include/Exclude Toggle */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">GST Mode</label>
+            <div className="flex bg-gray-100 p-1 rounded-lg">
+              <button
+                onClick={() => setGstMode('exclude')}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  gstMode === 'exclude'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Exclude GST (+ Tax)
+              </button>
+              <button
+                onClick={() => setGstMode('include')}
+                className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                  gstMode === 'include'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Include GST (Inbuilt)
+              </button>
+            </div>
+          </div>
+
+          {/* GST Bracket Selection */}
+          <div>
+            <label className="text-sm font-semibold text-gray-700 mb-2 block">GST Bracket</label>
+            <div className="grid grid-cols-3 gap-3">
+              {[5, 18, 40].map((rate) => (
+                <button
+                  key={rate}
+                  onClick={() => setGstRate(rate)}
+                  className={`py-3 text-sm font-bold rounded-lg border-2 transition-all ${
+                    gstRate === rate
+                      ? 'border-gray-900 bg-gray-900 text-white'
+                      : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+                  }`}
+                >
+                  {rate}%
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <hr className="border-gray-100" />
+
+          {/* Results Display */}
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-500">Base Price</span>
+              <span className="font-mono text-gray-800">₹{results.basePrice}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-500">GST Amount ({gstRate}%)</span>
+              <span className="font-mono text-gray-800 text-red-500">+ ₹{results.gstAmount}</span>
+            </div>
+            <div className="pt-2 mt-2 border-t border-gray-200 flex justify-between items-center">
+              <span className="font-bold text-gray-900">Total Price</span>
+              <span className="font-mono font-bold text-xl text-gray-900">₹{results.totalPrice}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+}
+
+```
