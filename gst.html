@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GST Calculator 🧮</title>
+  <title>GST Calculator</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,7 +22,8 @@
     const { useState } = React;
 
     function App() {
-      const [amount, setAmount] = useState(10000);
+      // Changed initial state from 10000 to an empty string
+      const [amount, setAmount] = useState('');
       const [gstRate, setGstRate] = useState(18);
       const [gstMode, setGstMode] = useState('exclude'); // 'include' or 'exclude'
 
@@ -81,7 +82,7 @@
                   value={amount}
                   onChange={handleInputChange}
                   placeholder="Enter amount"
-                  className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all font-mono bg-gray-50"
+                  className="w-full px-4 py-3 text-lg border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-gray-900 outline-none transition-all font-mono bg-gray-50 placeholder-gray-400"
                 />
               </div>
 
