@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            color: #000;
+            font-size: 9pt;
+            line-height: 1.4;
+        }
+        a {
+            color: #000;
+        }
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border: none;
+            padding: 20px;
+            box-sizing: border-box;
+            min-height: 950px;
+        }
+        .logo-img {
+            width: 280px; 
+            height: auto;
+            max-height: 60px;
+            object-fit: contain;
+            object-position: left top; 
+        }
+        .invoice-title {
+            text-align: right;
+            font-size: 24pt;
+            color: #000; 
+            letter-spacing: 1px;
+            padding-top: 5px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .company-details {
+            font-size: 9pt;
+            color: #000; 
+            padding-top: 10px; 
+        }
+        .meta-table {
+            width: auto; 
+            margin-left: auto; 
+            margin-right: 0;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        .meta-table td {
+            padding: 4px 0;
+            border: none;
+            height: 20px;
+            white-space: nowrap; 
+        }
+        .meta-table td:first-child {
+            font-weight: bold;
+            text-align: right; 
+            padding-right: 15px; 
+        }
+        .meta-table td:nth-child(2) {
+            text-align: right; 
+        }
+        .bill-to {
+            border: none;
+            padding: 10px 0;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 10pt;
+            min-height: 50px;
+            margin-top: 10px;
+        }
+        .bill-to-title {
+            font-size: 8pt;
+            color: #000;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .line-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .line-items th {
+            background-color: transparent; 
+            border: none;
+            border-bottom: 2px solid #000; 
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            color: #000;
+        }
+        .line-items th:nth-child(2) {
+            text-align: left;
+        }
+        .line-items td {
+            border: none; 
+            padding: 8px;
+            text-align: center;
+            color: #000;
+            vertical-align: top;
+        }
+        .line-items td:nth-child(2) {
+            text-align: left;
+        }
+        .bottom-section {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .notes-col {
+            display: table-cell;
+            width: 60%;
+            vertical-align: top;
+            padding-right: 20px;
+        }
+        .totals-col {
+            display: table-cell;
+            width: 40%;
+            vertical-align: top;
+        }
+        .totals-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .totals-table td {
+            padding: 6px;
+            text-align: right;
+            color: #000;
+            height: 20px;
+            border: none;
+        }
+        .totals-table td:first-child {
+            text-align: right;
+            color: #000;
+        }
+        .balance-due {
+            font-weight: bold;
+            font-size: 11pt;
+            border-top: 2px solid #000; 
+        }
+        .qr-container {
+            margin-top: 15px;
+            display: inline-block;
+            vertical-align: top;
+        }
+        .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            display: inline-block;
+        }
+        .qr-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+        .qr-text {
+            display: inline-block;
+            vertical-align: top;
+            margin-top: 30px;
+            margin-left: 10px;
+            font-size: 9pt;
+            line-height: 1.3;
+        }
+        .upi-id {
+            font-size: 7.5pt;
+            color: #000;
+            margin-top: 4px;
+            display: block;
+        }
+        .policy-text {
+            font-size: 7.5pt;
+            color: #000;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ROW 1: Logo and Title -->
+        <table style="width: 100%; margin-bottom: 0;">
+            <tr>
+                <td style="vertical-align: top; width: 60%;">
+                    <img src="YOUR_LOGO_URL_HERE.png" class="logo-img" alt="Faiz, Digital Strategist Logo">
+                </td>
+                <td style="vertical-align: top; width: 40%; text-align: right;">
+                    <div class="invoice-title">INVOICE</div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- ROW 2: Company Details and Invoice Meta -->
+        <table style="width: 100%; margin-bottom: 25px;">
+            <tr>
+                <td style="vertical-align: top; width: 60%;">
+                    <div class="company-details">
+                        <a href="tel:+918750280134" style="text-decoration: none; color: #000;">+91 8750280134</a><br>
+                        <a href="mailto:contact@heyiamfaiz.com" style="text-decoration: none; color: #000;">contact@heyiamfaiz.com</a><br>
+                        <a href="https://heyiamfaiz.com" style="text-decoration: none; color: #000;">https://heyiamfaiz.com</a><br>
+                        MSME/Udyam No : UDYAM-DL-11-0013710
+                    </div>
+                </td>
+                <td style="vertical-align: top; width: 40%;">
+                    <table class="meta-table">
+                        <tr><td>Invoice no.</td><td>INV-000022</td></tr>
+                        <tr><td>Invoice Date</td><td>06/05/2026</td></tr>
+                        <tr><td>Due Date</td><td>06/05/2026</td></tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <div class="bill-to">
+            <div class="bill-to-title">Billed To:</div>
+            Test Client / [Client Company]<br>
+            <span style="font-weight: normal; font-size: 9pt;">Client Email / Phone Number</span>
+        </div>
+
+        <table class="line-items">
+            <thead>
+                <tr>
+                    <th style="width: 5%;">#</th>
+                    <th style="width: 55%;">Description</th>
+                    <th style="width: 10%;">Qty</th>
+                    <th style="width: 15%;">Rate</th>
+                    <th style="width: 15%;">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>
+                        <strong>D2C E-commerce Store Build</strong><br>
+                        <span style="font-size: 8pt; color: #000;">End-to-end setup (14-day turnaround). Requires asset delivery to commence.</span>
+                    </td>
+                    <td>1.00</td>
+                    <td>30,000.00</td>
+                    <td>30,000.00</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>
+                        <strong>Online Marketing Consulting (Month 1)</strong><br>
+                        <span style="font-size: 8pt; color: #000;">Strategic consulting and marketing roadmap guidance. Billed automatically each month until canceled.</span>
+                    </td>
+                    <td>1.00</td>
+                    <td>10,000.00</td>
+                    <td>10,000.00</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>
+                        <strong>Full Online Marketing Management (Month 1)</strong><br>
+                        <span style="font-size: 8pt; color: #000;">End-to-end campaign execution and active management. Billed automatically each month until canceled.</span>
+                    </td>
+                    <td>1.00</td>
+                    <td>20,000.00</td>
+                    <td>20,000.00</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="bottom-section">
+            <div class="notes-col">
+                <p>Total in Words<br>
+                <em>Indian Rupee Sixty Thousand Only</em></p>
+                
+                <p>Thanks for your business.</p>
+
+                <div class="policy-text">
+                    <strong>Terms & Conditions Highlights:</strong><br>
+                    - Cancellations within 24hrs are refunded <em>only</em> if work hasn't started.<br>
+                    - A 50% kill-fee applies if cancelled after planning/setup begins.<br>
+                    - Setup, configuration fees, and audits are non-refundable.<br>
+                    - Retainer services run month-to-month and require 14 days notice to cancel.<br>
+                    - Full policies at: <a href="https://heyiamfaiz.com/terms-and-conditions.html" style="text-decoration: underline; color: #000;">heyiamfaiz.com/terms-and-conditions.html</a> & <a href="https://heyiamfaiz.com/refund-policy.html" style="text-decoration: underline; color: #000;">heyiamfaiz.com/refund-policy.html</a>
+                </div>
+                
+                <div class="qr-container">
+                    <div class="qr-placeholder">
+                        <img src="YOUR_QR_CODE_URL_HERE.png" alt="Payment QR Code">
+                    </div>
+                    <div class="qr-text">
+                        Scan to Pay
+                        <span class="upi-id">UPI: s6437982016387734@slc</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="totals-col">
+                <table class="totals-table">
+                    <tr>
+                        <td>Sub Total</td>
+                        <td>60,000.00</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td><strong>₹60,000.00</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Payment Made</td>
+                        <td class="payment-made">(-) 0.00</td>
+                    </tr>
+                    <tr>
+                        <td class="balance-due">Balance Due</td>
+                        <td class="balance-due">₹60,000.00</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
