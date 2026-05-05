@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faiz - Native Invoice Generator</title>
+    <!-- html2pdf library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Dynamic QR Code Generator Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* --- APP UI STYLES --- */
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 0; display: flex; height: 100vh; overflow: hidden; }
+        #sidebar { width: 400px; background: white; border-right: 1px solid #e5e7eb; padding: 20px; overflow-y: auto; height: 100%; box-sizing: border-box; }
+        #preview-area { flex-grow: 1; overflow-y: auto; padding: 40px; display: flex; justify-content: center; align-items: flex-start; background-color: #9ca3af; }
+        
+        h2 { margin-top: 0; font-size: 18px; color: #111827; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 5px; color: #374151; text-transform: uppercase; }
+        input[type="text"], input[type="date"], input[type="number"], textarea { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; box-sizing: border-box; font-family: inherit; font-size: 14px; }
+        textarea { resize: vertical; min-height: 60px; }
+        
+        .item-row { border: 1px solid #e5e7eb; padding: 10px; margin-bottom: 10px; border-radius: 4px; background: #f9fafb; position: relative; }
+        .remove-btn { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer; padding: 4px 8px; font-size: 12px; }
+        
+        .btn { display: block; width: 100%; padding: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-align: center; font-size: 14px; margin-bottom: 10px; }
+        .btn-add { background: #e5e7eb; color: #374151; }
+        .btn-generate { background: #000; color: #fff; font-size: 16px; padding: 15px; margin-top: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+
+        /* --- INVOICE PRINT STYLES --- */
+        #invoice-wrapper { background: white; width: 210mm; min-height: 297mm; padding: 15mm; box-sizing: border-box; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        #invoice { width: 100%; color: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 9pt; line-height: 1.4; }
+        #invoice a { color: #000; text-decoration: none; }
+        
+        .header { display: table; width: 100%; margin-bottom: 0; }
+        .header-col { display: table-cell; vertical-align: top; }
+        .logo-img { width: 280px; height: auto; max-height: 60px; object-fit: contain; object-position: left center; }
+        .invoice-title { text-align: right; font-size: 24pt; color: #000; letter-spacing: 1px; padding-top: 5px; font-weight: bold; margin-bottom: 5px; }
+        .company-details { font-size: 9pt; color: #000; padding-top: 10px; }
+        
+        .meta-table { width: auto; margin-left: auto; margin-right: 0; border-collapse: collapse; margin-top: 10px; }
+        .meta-table td { padding: 4px 0; border: none; height: 20px; white-space: nowrap; }
+        .meta-table td:first-child { font-weight: bold; text-align: right; padding-right: 15px; }
+        .meta-table td:nth-child(2) { text-align: right; }
+        
+        .bill-to { border: none; padding: 10px 0; margin-bottom: 20px; font-weight: bold; font-size: 10pt; min-height: 50px; margin-top: 10px; }
+        .bill-to-title { font-size: 8pt; color: #000; margin-bottom: 5px; text-transform: uppercase; }
+        
+        .line-items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .line-items th { background-color: transparent; border: none; border-bottom: 2px solid #000; padding: 8px; text-align: center; font-weight: bold; color: #000; }
+        .line-items th:nth-child(2) { text-align: left; }
+        .line-items td { border: none; padding: 8px; text-align: center; color: #000; vertical-align: top; }
+        .line-items td:nth-child(2) { text-align: left; }
+        
+        .bottom-section { display: table; width: 100%; margin-top: 20px; }
+        .notes-col { display: table-cell; width: 60%; vertical-align: top; padding-right: 20px; }
+        .totals-col { display: table-cell; width: 40%; vertical-align: top; }
+        
+        .totals-table { width: 100%; border-collapse: collapse; }
+        .totals-table td { padding: 6px; text-align: right; color: #000; height: 20px; border: none; }
+        .totals-table td:first-child { text-align: right; color: #000; }
+        .balance-due { font-weight: bold; font-size: 11pt; border-top: 2px solid #000; }
+        
+        .qr-container { margin-top: 15px; display: inline-block; vertical-align: top; }
+        .qr-placeholder { width: 100px; height: 100px; display: inline-block; }
+        /* Make sure the dynamically generated QR canvas/img scales perfectly */
+        .qr-placeholder img, .qr-placeholder canvas { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+        .qr-text { display: inline-block; vertical-align: top; margin-top: 30px; margin-left: 10px; font-size: 9pt; line-height: 1.3; }
+        .upi-id { font-size: 7.5pt; color: #000; margin-top: 4px; display: block; }
+        .policy-text { font-size: 7.5pt; color: #000; margin-top: 10px; }
+
+        /* Media Query for iPad/Mobile */
+        @media (max-width: 1024px) {
+            body { flex-direction: column; overflow: auto; }
+            #sidebar { width: 100%; border-right: none; border-bottom: 1px solid #ccc; height: auto; overflow: visible; padding-bottom: 100px; }
+            #preview-area { padding: 10px; transform-origin: top center; overflow-x: auto; }
+            #invoice-wrapper { width: 210mm; min-height: 297mm; transform: scale(0.9); margin-bottom: 50px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- INPUT FORM -->
+    <div id="sidebar">
+        <h2>Invoice Details</h2>
+        
+        <div class="form-group">
+            <label>Invoice No.</label>
+            <input type="text" id="in-inv-no" value="INV-000022" oninput="updateInvoice()">
+        </div>
+        <div class="form-group">
+            <label>Invoice Date</label>
+            <input type="text" id="in-date" value="06/05/2026" oninput="updateInvoice()">
+        </div>
+        <div class="form-group">
+            <label>Due Date</label>
+            <input type="text" id="in-due" value="06/05/2026" oninput="updateInvoice()">
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        
+        <div class="form-group">
+            <label>Client Name / Company</label>
+            <input type="text" id="in-client-name" value="Test Client / [Client Company]" oninput="updateInvoice()">
+        </div>
+        <div class="form-group">
+            <label>Client Contact Info</label>
+            <input type="text" id="in-client-contact" value="Client Email / Phone Number" oninput="updateInvoice()">
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        
+        <div id="items-container">
+            <label>Line Items</label>
+            <div id="items-list"></div>
+        </div>
+        
+        <button type="button" class="btn btn-add" onclick="addItem()">+ Add Item</button>
+
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+
+        <div class="form-group">
+            <label>Payment Made (Advance)</label>
+            <input type="number" step="0.01" id="in-paid" value="0" oninput="updateInvoice()">
+        </div>
+        <div class="form-group">
+            <label>Total in Words</label>
+            <input type="text" id="in-words" value="Indian Rupee Sixty Thousand Only" oninput="updateInvoice()">
+        </div>
+        
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        
+        <div class="form-group">
+            <label>Your UPI ID (For Auto QR)</label>
+            <input type="text" id="in-upi" value="s6437982016387734@slc" oninput="updateInvoice()">
+        </div>
+
+        <!-- Sticky Generate Button for Mobile -->
+        <button type="button" class="btn btn-generate" onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+
+    <!-- PREVIEW AREA -->
+    <div id="preview-area">
+        <div id="invoice-wrapper">
+            <div id="invoice">
+                <!-- ROW 1 -->
+                <table style="width: 100%; margin-bottom: 0;">
+                    <tr>
+                        <td style="vertical-align: top; width: 60%;">
+                            <!-- Embedded Base64 Logo ensures it prints on iPad without CORS errors -->
+                            <img src="data:image/png;base64,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" class="logo-img" alt="Logo">
+                        </td>
+                        <td style="vertical-align: top; width: 40%; text-align: right;">
+                            <div class="invoice-title">INVOICE</div>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- ROW 2 -->
+                <table style="width: 100%; margin-bottom: 25px;">
+                    <tr>
+                        <td style="vertical-align: top; width: 60%;">
+                            <div class="company-details">
+                                <a href="tel:+918750280134">+91 8750280134</a><br>
+                                <a href="mailto:contact@heyiamfaiz.com">contact@heyiamfaiz.com</a><br>
+                                <a href="https://heyiamfaiz.com">https://heyiamfaiz.com</a><br>
+                                MSME/Udyam No : UDYAM-DL-11-0013710
+                            </div>
+                        </td>
+                        <td style="vertical-align: top; width: 40%;">
+                            <table class="meta-table">
+                                <tr><td>Invoice no.</td><td id="out-inv-no">INV-000022</td></tr>
+                                <tr><td>Invoice Date</td><td id="out-date">06/05/2026</td></tr>
+                                <tr><td>Due Date</td><td id="out-due">06/05/2026</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <div class="bill-to">
+                    <div class="bill-to-title">Billed To:</div>
+                    <span id="out-client-name">Test Client / [Client Company]</span><br>
+                    <span style="font-weight: normal; font-size: 9pt;" id="out-client-contact">Client Email / Phone Number</span>
+                </div>
+
+                <table class="line-items">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 55%;">Description</th>
+                            <th style="width: 10%;">Qty</th>
+                            <th style="width: 15%;">Rate</th>
+                            <th style="width: 15%;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="out-items">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+
+                <div class="bottom-section">
+                    <div class="notes-col">
+                        <p>Total in Words<br>
+                        <em id="out-words">Indian Rupee Sixty Thousand Only</em></p>
+                        
+                        <p>Thanks for your business.</p>
+
+                        <div class="policy-text" id="terms-content">
+                            <strong>Terms & Conditions Highlights:</strong><br>
+                            - Cancellations within 24hrs are refunded <em>only</em> if work hasn't started.<br>
+                            - A 50% kill-fee applies if cancelled after planning/setup begins.<br>
+                            - Setup, configuration fees, and audits are non-refundable.<br>
+                            - Retainer services run month-to-month and require 14 days notice to cancel.<br>
+                            - Full policies at: <a href="https://heyiamfaiz.com/terms-and-conditions.html">heyiamfaiz.com/terms-and-conditions.html</a> & <a href="https://heyiamfaiz.com/refund-policy.html">heyiamfaiz.com/refund-policy.html</a>
+                        </div>
+                        
+                        <div class="qr-container">
+                            <div class="qr-placeholder" id="qr-placeholder">
+                                <!-- QR will be injected here automatically by JS -->
+                            </div>
+                            <div class="qr-text">
+                                Scan to Pay
+                                <span class="upi-id" id="out-upi-text">UPI: s6437982016387734@slc</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="totals-col">
+                        <table class="totals-table">
+                            <tr>
+                                <td>Sub Total</td>
+                                <td id="out-subtotal">60,000.00</td>
+                            </tr>
+                            <tr>
+                                <td>Total</td>
+                                <td><strong id="out-total">₹60,000.00</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Payment Made</td>
+                                <td class="payment-made">(-) <span id="out-paid-display">0.00</span></td>
+                            </tr>
+                            <tr>
+                                <td class="balance-due">Balance Due</td>
+                                <td class="balance-due" id="out-balance">₹60,000.00</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Pre-fill exactly matching your screenshot
+        let items = [
+            { title: "D2C E-commerce Store Build", desc: "End-to-end setup (14-day turnaround). Requires asset delivery to commence.", qty: 1, rate: 30000 },
+            { title: "Online Marketing Consulting (Month 1)", desc: "Strategic consulting and marketing roadmap guidance. Billed automatically each month until canceled.", qty: 1, rate: 10000 },
+            { title: "Full Online Marketing Management (Month 1)", desc: "End-to-end campaign execution and active management. Billed automatically each month until canceled.", qty: 1, rate: 20000 }
+        ];
+
+        function renderFormItems() {
+            const list = document.getElementById('items-list');
+            list.innerHTML = '';
+            items.forEach((item, index) => {
+                let safeTitle = item.title.replace(/"/g, '&quot;');
+                let safeDesc = item.desc.replace(/"/g, '&quot;');
+                
+                list.innerHTML += `
+                    <div class="item-row">
+                        <button type="button" class="remove-btn" onclick="removeItem(${index})">X</button>
+                        <div class="form-group"><label>Title</label><input type="text" value="${safeTitle}" oninput="updateItem(${index}, 'title', this.value)"></div>
+                        <div class="form-group"><label>Description</label><textarea oninput="updateItem(${index}, 'desc', this.value)">${item.desc}</textarea></div>
+                        <div style="display:flex; gap:10px;">
+                            <div class="form-group" style="flex:1;"><label>Qty</label><input type="number" step="0.01" value="${item.qty}" oninput="updateItem(${index}, 'qty', this.value)"></div>
+                            <div class="form-group" style="flex:1;"><label>Rate</label><input type="number" step="0.01" value="${item.rate}" oninput="updateItem(${index}, 'rate', this.value)"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            updateInvoice();
+        }
+
+        function addItem() {
+            items.push({ title: "", desc: "", qty: 1, rate: 0 });
+            renderFormItems();
+        }
+
+        function removeItem(index) {
+            items.splice(index, 1);
+            renderFormItems();
+        }
+
+        function updateItem(index, key, value) {
+            items[index][key] = (key === 'qty' || key === 'rate') ? Number(value) : value;
+            updateInvoice();
+        }
+
+        function formatCurrency(num) {
+            return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        let qrCodeInstance = null;
+
+        function updateInvoice() {
+            document.getElementById('out-inv-no').innerText = document.getElementById('in-inv-no').value;
+            document.getElementById('out-date').innerText = document.getElementById('in-date').value;
+            document.getElementById('out-due').innerText = document.getElementById('in-due').value;
+            document.getElementById('out-client-name').innerText = document.getElementById('in-client-name').value;
+            document.getElementById('out-client-contact').innerText = document.getElementById('in-client-contact').value;
+            document.getElementById('out-words').innerText = document.getElementById('in-words').value;
+
+            // Handle Dynamic QR generation
+            let upiId = document.getElementById('in-upi').value;
+            document.getElementById('out-upi-text').innerText = "UPI: " + upiId;
+            let upiString = "upi://pay?pa=" + upiId + "&pn=Faiz";
+            
+            let qrContainer = document.getElementById('qr-placeholder');
+            qrContainer.innerHTML = ""; // clear previous
+            
+            if(upiId) {
+                qrCodeInstance = new QRCode(qrContainer, {
+                    text: upiString,
+                    width: 100,
+                    height: 100,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.M
+                });
+            }
+
+            let outItemsHtml = '';
+            let subtotal = 0;
+
+            items.forEach((item, index) => {
+                let amount = item.qty * item.rate;
+                subtotal += amount;
+                outItemsHtml += `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>
+                            <strong>${item.title}</strong><br>
+                            <span style="font-size: 8pt;">${item.desc}</span>
+                        </td>
+                        <td>${item.qty.toFixed(2)}</td>
+                        <td>${formatCurrency(item.rate)}</td>
+                        <td>${formatCurrency(amount)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('out-items').innerHTML = outItemsHtml;
+
+            let paid = Number(document.getElementById('in-paid').value) || 0;
+            let balance = subtotal - paid;
+
+            document.getElementById('out-subtotal').innerText = formatCurrency(subtotal);
+            document.getElementById('out-total').innerText = '₹' + formatCurrency(subtotal);
+            document.getElementById('out-paid-display').innerText = formatCurrency(paid);
+            document.getElementById('out-balance').innerText = '₹' + formatCurrency(balance);
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('invoice-wrapper');
+            const invNo = document.getElementById('in-inv-no').value || 'Invoice';
+            
+            var opt = {
+              margin:       0,
+              filename:     invNo + '_Faiz.pdf',
+              image:        { type: 'jpeg', quality: 1.0 },
+              html2canvas:  { scale: 2, useCORS: true, logging: false },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            renderFormItems();
+        });
+    </script>
+</body>
+</html>
