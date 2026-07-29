@@ -52,21 +52,20 @@
   <script>
     (function () {
       var igWeb = "https://www.instagram.com/heyiamfaiz/";
-      var igApp = "instagram://user?username=heyiamfaiz";
+      var igAppIOS = "instagram://user?username=heyiamfaiz";
+      var igAppAndroid = "intent://instagram.com/_u/heyiamfaiz/#Intent;package=com.instagram.android;scheme=https;end";
 
       var isAndroid = /Android/i.test(navigator.userAgent);
-      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      // Fix: Detects iPhones, old iPads, AND modern iPads requesting desktop sites
+      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
-      if (isAndroid || isIOS) {
-        window.location.href = igApp;
+      if (isAndroid) {
+        window.location.replace(igAppAndroid);
         setTimeout(function () {
-          window.location.href = igWeb;
+          window.location.replace(igWeb);
         }, 1500);
-      } else {
-        // Desktop
-        window.location.href = igWeb;
-      }
-    })();
-  </script>
-</body>
-</html>
+      } else if (isIOS) {
+        window.location.replace(igAppIOS);
+        setTimeout(function () {
+          window.location.replace(igWeb);
+        }, 1500);
