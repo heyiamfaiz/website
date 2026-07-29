@@ -51,20 +51,27 @@
 
   <script>
     (function () {
-      var ytLink = "https://www.youtube.com/@heyiamfaiz";
+      var ytWebLink = "https://www.youtube.com/@heyiamfaiz";
       var intentLink = "intent://www.youtube.com/@heyiamfaiz#Intent;package=com.google.android.youtube;scheme=https;end";
+      var iosDeepLink = "youtube://www.youtube.com/@heyiamfaiz";
 
       var isAndroid = /Android/i.test(navigator.userAgent);
-      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      // Fix: Detects iPhones, old iPads, AND modern iPads requesting desktop sites
+      var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
       if (isAndroid) {
-        window.location.href = intentLink;
+        window.location.replace(intentLink);
         setTimeout(function () {
-          window.location.href = ytLink;
+          window.location.replace(ytWebLink);
+        }, 1500);
+      } else if (isIOS) {
+        window.location.replace(iosDeepLink);
+        setTimeout(function () {
+          window.location.replace(ytWebLink);
         }, 1500);
       } else {
-        // iOS + Desktop
-        window.location.href = ytLink;
+        // Desktop
+        window.location.replace(ytWebLink);
       }
     })();
   </script>
