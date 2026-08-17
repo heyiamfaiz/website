@@ -46,37 +46,13 @@
     background-color: #1f2937;
     color: white;
     font-size: 1rem;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
     box-sizing: border-box;
     outline: none;
     transition: border-color 0.2s;
   }
   input[type="number"]:focus {
     border-color: #6366f1;
-  }
-  .toggle-container {
-    background-color: #1f2937;
-    border-radius: 8px;
-    display: flex;
-    padding: 4px;
-    margin-bottom: 24px;
-  }
-  .toggle-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    background: transparent;
-    color: #9ca3af;
-    border-radius: 6px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .toggle-btn.active {
-    background-color: #111827;
-    color: white;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
   .results {
     border-top: 1px solid #374151;
@@ -106,12 +82,6 @@
   <label for="income">Annual Income (₹)</label>
   <input type="number" id="income" placeholder="Enter amount (e.g. 1500000)">
 
-  <label>Compare Against</label>
-  <div class="toggle-container">
-    <button class="toggle-btn active" id="btn-all" onclick="setMode('all')">All India (1.4B)</button>
-    <button class="toggle-btn" id="btn-itr" onclick="setMode('itr')">ITR Filers (8.22Cr)</button>
-  </div>
-
   <div class="results">
     <span>Your Percentile Club</span>
     <strong id="result-text" style="color: #9ca3af;">Enter Income</strong>
@@ -119,15 +89,6 @@
 </div>
 
 <script>
-  let currentMode = 'all';
-
-  function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('btn-all').classList.toggle('active', mode === 'all');
-    document.getElementById('btn-itr').classList.toggle('active', mode === 'itr');
-    calculateClub();
-  }
-
   function calculateClub() {
     const income = parseFloat(document.getElementById('income').value);
     const resultEl = document.getElementById('result-text');
@@ -141,32 +102,16 @@
     let club = "";
     let color = ""; 
 
-    // Colors: Green (Top 1-5%), Yellow (Top 10-15%), Orange (Top 50-70%), Red (Top 80-Bottom)
-    if (currentMode === 'all') {
-      if (income >= 2200000) { club = "Top 1%"; color = "#10b981"; }
-      else if (income >= 720000) { club = "Top 5%"; color = "#10b981"; }
-      else if (income >= 360000) { club = "Top 10%"; color = "#f59e0b"; }
-      else if (income >= 240000) { club = "Top 15%"; color = "#f59e0b"; }
-      else if (income >= 150000) { club = "Top 50%"; color = "#f97316"; }
-      else if (income >= 120000) { club = "Top 60%"; color = "#f97316"; } // ~10k/month
-      else if (income >= 96000)  { club = "Top 70%"; color = "#ea580c"; } // ~8k/month
-      else if (income >= 72000)  { club = "Top 80%"; color = "#ef4444"; } // ~6k/month
-      else if (income >= 48000)  { club = "Top 90%"; color = "#ef4444"; } // ~4k/month
-      else { club = "Bottom 10%"; color = "#b91c1c"; } // Deep red
-    } else {
-      // ITR Filers scale drastically differently. The bottom of the ITR barrel is still the top 6% of India.
-      if (income >= 10000000) { club = "Top 0.5%"; color = "#10b981"; }
-      else if (income >= 7150000) { club = "Top 1%"; color = "#10b981"; }
-      else if (income >= 4200000) { club = "Top 5%"; color = "#10b981"; }
-      else if (income >= 3100000) { club = "Top 10%"; color = "#f59e0b"; }
-      else if (income >= 2000000) { club = "Top 15%"; color = "#f59e0b"; }
-      else if (income >= 500000)  { club = "Top 50%"; color = "#f97316"; } // The 5L rebate bottleneck
-      else if (income >= 400000)  { club = "Top 60%"; color = "#f97316"; }
-      else if (income >= 350000)  { club = "Top 70%"; color = "#ea580c"; }
-      else if (income >= 300000)  { club = "Top 80%"; color = "#ef4444"; }
-      else if (income >= 250000)  { club = "Top 90%"; color = "#ef4444"; }
-      else { club = "Bottom 10% (ITR)"; color = "#b91c1c"; }
-    }
+    if (income >= 2200000) { club = "Top 1%"; color = "#10b981"; }
+    else if (income >= 720000) { club = "Top 5%"; color = "#10b981"; }
+    else if (income >= 360000) { club = "Top 10%"; color = "#f59e0b"; }
+    else if (income >= 240000) { club = "Top 15%"; color = "#f59e0b"; }
+    else if (income >= 150000) { club = "Top 50%"; color = "#f97316"; }
+    else if (income >= 120000) { club = "Top 60%"; color = "#f97316"; }
+    else if (income >= 96000)  { club = "Top 70%"; color = "#ea580c"; }
+    else if (income >= 72000)  { club = "Top 80%"; color = "#ef4444"; }
+    else if (income >= 48000)  { club = "Top 90%"; color = "#ef4444"; }
+    else { club = "Bottom 10%"; color = "#b91c1c"; } 
 
     resultEl.textContent = club;
     resultEl.style.color = color;
