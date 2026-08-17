@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>You Poor in 🇮🇳?</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --accent: #f59e0b;
+            --red-pill: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .game-container {
+            background-color: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 90%;
+            max-width: 450px;
+        }
+        h1 {
+            margin-top: 0;
+            color: var(--accent);
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+        }
+        p {
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+        }
+        input[type="number"] {
+            width: 80%;
+            padding: 12px;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background: #0f172a;
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+        button {
+            margin-top: 1.5rem;
+            width: 85%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+        }
+        button:hover {
+            background-color: #fbbf24;
+            transform: scale(1.02);
+        }
+        #result-box {
+            margin-top: 2rem;
+            min-height: 80px;
+        }
+        .percentile-rank {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        .red-pill-text {
+            font-size: 0.95rem;
+            color: var(--red-pill);
+            line-height: 1.4;
+            font-weight: 500;
+        }
+        /* Hide arrows on number input */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>You Poor in 🇮🇳?</h1>
+        <p>Enter your total annual income (₹)</p>
+        
+        <input type="number" id="incomeInput" placeholder="e.g. 500000" autocomplete="off">
+        <button onclick="calculateRank()">Face Reality</button>
+
+        <div id="result-box">
+            <div id="rank" class="percentile-rank"></div>
+            <div id="insight" class="red-pill-text"></div>
+        </div>
+    </div>
+
+    <script>
+        function calculateRank() {
+            const input = document.getElementById('incomeInput').value;
+            const rankDiv = document.getElementById('rank');
+            const insightDiv = document.getElementById('insight');
+
+            if (!input || input < 0) {
+                rankDiv.textContent = "Error";
+                rankDiv.style.color = "#ef4444";
+                insightDiv.textContent = "Enter a valid positive number to play.";
+                return;
+            }
+
+            const income = parseInt(input);
+            let rank = "";
+            let insight = "";
+            let color = "";
+
+            if (income >= 2200000) {
+                rank = "👑 Top 1% Club";
+                color = "#fbbf24";
+                insight = "Statistically elite. But if you live in Mumbai, Delhi, or BLR, real estate and lifestyle inflation mean you are just upper-middle-class.";
+            } else if (income >= 600000) {
+                rank = "🚀 Top 5% Club";
+                color = "#34d399";
+                insight = "You make more than 95% of 1.4 billion people. Yet, scaling to the top 1% from here requires leverage, not just a salary.";
+            } else if (income >= 300000) {
+                rank = "📈 Top 10% Club";
+                color = "#60a5fa";
+                insight = "You are in the top decile. The brutal truth? A single major medical emergency can wipe out a year's worth of your earnings.";
+            } else if (income >= 180000) {
+                rank = "🛠️ Top 15% Club";
+                color = "#a78bfa";
+                insight = "Above the median, but stuck in the daily grind. You are surviving, not thriving.";
+            } else if (income >= 150000) {
+                rank = "⚖️ Top 50% Boundary";
+                color = "#94a3b8";
+                insight = "You are floating right above the bottom half. You are the invisible backbone of the informal economy.";
+            } else {
+                rank = "📉 Bottom 50%";
+                color = "#ef4444";
+                insight = "Half the country lives in this bracket. Up-skilling is no longer optional; it's a matter of absolute survival.";
+            }
+
+            rankDiv.style.color = color;
+            rankDiv.textContent = rank;
+            insightDiv.textContent = insight;
+        }
+    </script>
+</body>
+</html>
