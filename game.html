@@ -6,15 +6,9 @@
 <title>India Income Club Calculator</title>
 <style>
   body {
-    /* Sky blue background */
     background-color: #87CEEB; 
-    
-    /* Pure CSS embedded SVG pattern for repeating money emoji */
     background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='40' y='60' font-size='40'%3E💸%3C/text%3E%3C/svg%3E");
-    
-    /* Animate the background to create a flying/floating effect */
     animation: floatMoney 8s linear infinite;
-    
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     display: flex;
     justify-content: center;
@@ -25,20 +19,18 @@
     box-sizing: border-box;
   }
 
-  /* Seamless background scrolling */
   @keyframes floatMoney {
     0% { background-position: 0 0; }
     100% { background-position: 120px 120px; }
   }
 
   .calculator-card {
-    background-color: #ffffff; /* Flipped to White */
-    color: #111827; /* Dark text for readability */
+    background-color: #ffffff; 
+    color: #111827; 
     padding: 32px;
     border-radius: 16px;
     width: 100%;
     max-width: 420px;
-    /* Added a heavier shadow to make the white card pop against the busy background */
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3); 
     position: relative;
     z-index: 10;
@@ -68,8 +60,8 @@
     width: 100%;
     padding: 14px;
     border-radius: 10px;
-    border: 1px solid #d1d5db; /* Light gray border */
-    background-color: #f9fafb; /* Very subtle off-white background */
+    border: 1px solid #d1d5db; 
+    background-color: #f9fafb; 
     color: #111827;
     font-size: 1.1rem;
     margin-bottom: 24px;
@@ -84,11 +76,12 @@
   }
 
   .results {
-    border-top: 1px solid #e5e7eb; /* Light border separator */
+    border-top: 1px solid #e5e7eb; 
     padding-top: 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 20px;
   }
 
   .results span {
@@ -102,13 +95,32 @@
     font-weight: 700;
     transition: color 0.3s ease;
   }
+
+  .meme-box {
+    display: none;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .meme-box img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
 </style>
 </head>
 <body>
 
 <div class="calculator-card">
   <div class="header">
-    <h2>How Rich are you in 🇮🇳 ?</h2>
+    <h2>How Rich are you in 🇮🇳</h2>
     <p>Find out where you stand in the hierarchy 🧐</p>
   </div>
 
@@ -119,22 +131,31 @@
     <span>Your Percentile Club</span>
     <strong id="result-text" style="color: #9ca3af;">Enter Income</strong>
   </div>
+
+  <div id="meme-container" class="meme-box">
+    <img id="meme-img" src="" alt="Reaction Meme">
+  </div>
 </div>
 
 <script>
   function calculateClub() {
     const income = parseFloat(document.getElementById('income').value);
     const resultEl = document.getElementById('result-text');
+    const memeContainer = document.getElementById('meme-container');
+    const memeImg = document.getElementById('meme-img');
 
     if (isNaN(income) || income < 0) {
       resultEl.textContent = 'Enter Income';
-      resultEl.style.color = '#9ca3af'; /* Default gray on white */
+      resultEl.style.color = '#9ca3af'; 
+      memeContainer.style.display = 'none';
       return;
     }
 
     let club = "";
     let color = ""; 
+    let memeUrl = "";
 
+    // Calculate Percentile Data
     if (income >= 2200000) { club = "Top 1%"; color = "#10b981"; }
     else if (income >= 720000) { club = "Top 5%"; color = "#10b981"; }
     else if (income >= 360000) { club = "Top 10%"; color = "#10b981"; } 
@@ -149,8 +170,23 @@
     else if (income >= 48000)  { club = "Below 10%"; color = "#ef4444"; } 
     else { club = "0%"; color = "#b91c1c"; } 
 
+    // Assign Meme Tier
+    if (income >= 200000) {
+      // Top 1% to 20%
+      memeUrl = "https://placehold.co/400x250/10b981/ffffff?text=Chaand+Pe+Hai+Apun+🚀";
+    } else if (income >= 150000) {
+      // Top 30% to 50%
+      memeUrl = "https://placehold.co/400x250/f97316/ffffff?text=Yeh+Bhi+Theek+Hai+🤷‍♂️";
+    } else {
+      // Below 40% to 0%
+      memeUrl = "https://placehold.co/400x250/ef4444/ffffff?text=Humne+Gareebi+Dekhi+Hai+😭";
+    }
+
+    // Apply Updates
     resultEl.textContent = club;
     resultEl.style.color = color;
+    memeImg.src = memeUrl;
+    memeContainer.style.display = 'block';
   }
 
   document.getElementById('income').addEventListener('input', calculateClub);
