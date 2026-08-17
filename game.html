@@ -1,168 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>You Poor in 🇮🇳?</title>
-    <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --accent: #f59e0b;
-            --red-pill: #ef4444;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .game-container {
-            background-color: var(--card-bg);
-            padding: 2.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            text-align: center;
-            width: 90%;
-            max-width: 450px;
-        }
-        h1 {
-            margin-top: 0;
-            color: var(--accent);
-            font-size: 1.8rem;
-            letter-spacing: -0.5px;
-        }
-        p {
-            color: #94a3b8;
-            margin-bottom: 1.5rem;
-        }
-        input[type="number"] {
-            width: 80%;
-            padding: 12px;
-            border: 2px solid #334155;
-            border-radius: 8px;
-            background: #0f172a;
-            color: white;
-            font-size: 1.2rem;
-            text-align: center;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        input[type="number"]:focus {
-            border-color: var(--accent);
-        }
-        button {
-            margin-top: 1.5rem;
-            width: 85%;
-            padding: 12px;
-            background-color: var(--accent);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
-        }
-        button:hover {
-            background-color: #fbbf24;
-            transform: scale(1.02);
-        }
-        #result-box {
-            margin-top: 2rem;
-            min-height: 80px;
-        }
-        .percentile-rank {
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-        }
-        .red-pill-text {
-            font-size: 0.95rem;
-            color: var(--red-pill);
-            line-height: 1.4;
-            font-weight: 500;
-        }
-        /* Hide arrows on number input */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>India Income Club Calculator</title>
+<style>
+  body {
+    background-color: #f8fafc; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  .calculator-card {
+    background-color: #111827; 
+    color: #f9fafb;
+    padding: 24px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  .header h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  .header p {
+    color: #9ca3af;
+    font-size: 0.875rem;
+    margin: 0 0 24px 0;
+  }
+  label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #e5e7eb;
+  }
+  input[type="number"] {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+    background-color: #1f2937;
+    color: white;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input[type="number"]:focus {
+    border-color: #6366f1;
+  }
+  .toggle-container {
+    background-color: #1f2937;
+    border-radius: 8px;
+    display: flex;
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .toggle-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .toggle-btn.active {
+    background-color: #111827;
+    color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  }
+  .results {
+    border-top: 1px solid #374151;
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .results span {
+    color: #9ca3af;
+    font-size: 0.875rem;
+  }
+  .results strong {
+    font-size: 1.25rem;
+    transition: color 0.3s ease;
+  }
+</style>
 </head>
 <body>
 
-    <div class="game-container">
-        <h1>You Poor in 🇮🇳?</h1>
-        <p>Enter your total annual income (₹)</p>
-        
-        <input type="number" id="incomeInput" placeholder="e.g. 500000" autocomplete="off">
-        <button onclick="calculateRank()">Face Reality</button>
+<div class="calculator-card">
+  <div class="header">
+    <h2>Income Club Calculator 🇮🇳</h2>
+    <p>Find out where you stand in the hierarchy 🧐</p>
+  </div>
 
-        <div id="result-box">
-            <div id="rank" class="percentile-rank"></div>
-            <div id="insight" class="red-pill-text"></div>
-        </div>
-    </div>
+  <label for="income">Annual Income (₹)</label>
+  <input type="number" id="income" placeholder="Enter amount (e.g. 1500000)">
 
-    <script>
-        function calculateRank() {
-            const input = document.getElementById('incomeInput').value;
-            const rankDiv = document.getElementById('rank');
-            const insightDiv = document.getElementById('insight');
+  <label>Compare Against</label>
+  <div class="toggle-container">
+    <button class="toggle-btn active" id="btn-all" onclick="setMode('all')">All India (1.4B)</button>
+    <button class="toggle-btn" id="btn-itr" onclick="setMode('itr')">ITR Filers (8.22Cr)</button>
+  </div>
 
-            if (!input || input < 0) {
-                rankDiv.textContent = "Error";
-                rankDiv.style.color = "#ef4444";
-                insightDiv.textContent = "Enter a valid positive number to play.";
-                return;
-            }
+  <div class="results">
+    <span>Your Percentile Club</span>
+    <strong id="result-text" style="color: #9ca3af;">Enter Income</strong>
+  </div>
+</div>
 
-            const income = parseInt(input);
-            let rank = "";
-            let insight = "";
-            let color = "";
+<script>
+  let currentMode = 'all';
 
-            if (income >= 2200000) {
-                rank = "👑 Top 1% Club";
-                color = "#fbbf24";
-                insight = "Statistically elite. But if you live in Mumbai, Delhi, or BLR, real estate and lifestyle inflation mean you are just upper-middle-class.";
-            } else if (income >= 600000) {
-                rank = "🚀 Top 5% Club";
-                color = "#34d399";
-                insight = "You make more than 95% of 1.4 billion people. Yet, scaling to the top 1% from here requires leverage, not just a salary.";
-            } else if (income >= 300000) {
-                rank = "📈 Top 10% Club";
-                color = "#60a5fa";
-                insight = "You are in the top decile. The brutal truth? A single major medical emergency can wipe out a year's worth of your earnings.";
-            } else if (income >= 180000) {
-                rank = "🛠️ Top 15% Club";
-                color = "#a78bfa";
-                insight = "Above the median, but stuck in the daily grind. You are surviving, not thriving.";
-            } else if (income >= 150000) {
-                rank = "⚖️ Top 50% Boundary";
-                color = "#94a3b8";
-                insight = "You are floating right above the bottom half. You are the invisible backbone of the informal economy.";
-            } else {
-                rank = "📉 Bottom 50%";
-                color = "#ef4444";
-                insight = "Half the country lives in this bracket. Up-skilling is no longer optional; it's a matter of absolute survival.";
-            }
+  function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-all').classList.toggle('active', mode === 'all');
+    document.getElementById('btn-itr').classList.toggle('active', mode === 'itr');
+    calculateClub();
+  }
 
-            rankDiv.style.color = color;
-            rankDiv.textContent = rank;
-            insightDiv.textContent = insight;
-        }
-    </script>
+  function calculateClub() {
+    const income = parseFloat(document.getElementById('income').value);
+    const resultEl = document.getElementById('result-text');
+
+    if (isNaN(income) || income <= 0) {
+      resultEl.textContent = 'Enter Income';
+      resultEl.style.color = '#9ca3af';
+      return;
+    }
+
+    let club = "";
+    let color = ""; 
+
+    // Colors: Green (Top 1-5%), Yellow (Top 10-15%), Orange (Top 50-70%), Red (Top 80-Bottom)
+    if (currentMode === 'all') {
+      if (income >= 2200000) { club = "Top 1%"; color = "#10b981"; }
+      else if (income >= 720000) { club = "Top 5%"; color = "#10b981"; }
+      else if (income >= 360000) { club = "Top 10%"; color = "#f59e0b"; }
+      else if (income >= 240000) { club = "Top 15%"; color = "#f59e0b"; }
+      else if (income >= 150000) { club = "Top 50%"; color = "#f97316"; }
+      else if (income >= 120000) { club = "Top 60%"; color = "#f97316"; } // ~10k/month
+      else if (income >= 96000)  { club = "Top 70%"; color = "#ea580c"; } // ~8k/month
+      else if (income >= 72000)  { club = "Top 80%"; color = "#ef4444"; } // ~6k/month
+      else if (income >= 48000)  { club = "Top 90%"; color = "#ef4444"; } // ~4k/month
+      else { club = "Bottom 10%"; color = "#b91c1c"; } // Deep red
+    } else {
+      // ITR Filers scale drastically differently. The bottom of the ITR barrel is still the top 6% of India.
+      if (income >= 10000000) { club = "Top 0.5%"; color = "#10b981"; }
+      else if (income >= 7150000) { club = "Top 1%"; color = "#10b981"; }
+      else if (income >= 4200000) { club = "Top 5%"; color = "#10b981"; }
+      else if (income >= 3100000) { club = "Top 10%"; color = "#f59e0b"; }
+      else if (income >= 2000000) { club = "Top 15%"; color = "#f59e0b"; }
+      else if (income >= 500000)  { club = "Top 50%"; color = "#f97316"; } // The 5L rebate bottleneck
+      else if (income >= 400000)  { club = "Top 60%"; color = "#f97316"; }
+      else if (income >= 350000)  { club = "Top 70%"; color = "#ea580c"; }
+      else if (income >= 300000)  { club = "Top 80%"; color = "#ef4444"; }
+      else if (income >= 250000)  { club = "Top 90%"; color = "#ef4444"; }
+      else { club = "Bottom 10% (ITR)"; color = "#b91c1c"; }
+    }
+
+    resultEl.textContent = club;
+    resultEl.style.color = color;
+  }
+
+  document.getElementById('income').addEventListener('input', calculateClub);
+</script>
+
 </body>
 </html>
