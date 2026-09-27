@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#ffffff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Food Bill">
+    <title>Food Bill Calculator (5% GST)</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+        /* Hide number input spinners for a clean receipt look */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        @keyframes rowSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .row-enter {
+            animation: rowSlideIn 0.14s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-stone-100 text-slate-800 min-h-screen py-6 px-4 flex flex-col items-center justify-start sm:justify-center">
+
+    <!-- Single Minimal Receipt Card -->
+    <main class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-stone-200/90 overflow-hidden">
+        
+        <!-- 1. Receipt Header -->
+        <header class="px-5 pt-5 pb-4 border-b border-stone-100 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl bg-orange-50 border border-orange-100 flex items-center justify-center text-lg select-none" aria-hidden="true">
+                    🧾
+                </div>
+                <div>
+                    <h1 class="font-bold text-base text-slate-900 leading-tight">Food Bill</h1>
+                    <p class="text-[11px] text-slate-400 font-medium">INR (₹) • 5% GST Calculator</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+                <!-- Install App Button (iOS & Android) -->
+                <button
+                    id="installAppBtn"
+                    type="button"
+                    class="inline-flex items-center gap-1 text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 active:scale-95 px-2.5 py-1.5 rounded-xl border border-orange-200/60 transition cursor-pointer"
+                >
+                    <svg class="w-3.5 h-3.5 stroke-[2.2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3"/>
+                    </svg>
+                    <span>Install App</span>
+                </button>
+
+                <!-- Reset Button -->
+                <button
+                    id="resetBillBtn"
+                    type="button"
+                    class="text-xs font-semibold text-slate-400 hover:text-rose-600 hover:bg-rose-50 active:scale-95 px-2.5 py-1.5 rounded-xl transition cursor-pointer"
+                >
+                    Reset
+                </button>
+            </div>
+        </header>
+
+        <!-- 2. Food Items List Section -->
+        <section class="px-5 py-4" aria-label="Food Items">
+            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider text-slate-400 pb-2 border-b border-stone-100">
+                <span>Item</span>
+                <span class="pr-8">Price (₹)</span>
+            </div>
+
+            <!-- Dynamic Food Rows Container -->
+            <div id="foodItemsContainer" class="divide-y divide-stone-100"></div>
+
+            <!-- + Add Food Button -->
+            <button
+                id="addFoodBtn"
+                type="button"
+                class="mt-3 w-full py-2.5 px-4 rounded-xl border border-dashed border-stone-300 hover:border-orange-500 hover:bg-orange-50/60 text-slate-700 hover:text-orange-600 font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
+            >
+                <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>+ Add Food</span>
+            </button>
+        </section>
+
+        <!-- 3, 4, 5. Calculation Summary, Discount, GST Toggle & Split Section -->
+        <section class="bg-stone-50/90 border-t border-dashed border-stone-200 px-5 py-5 space-y-3.5 text-sm">
+            
+            <!-- Subtotal Row -->
+            <div class="flex items-center justify-between text-slate-500">
+                <span class="font-medium">Subtotal</span>
+                <span id="summarySubtotal" class="font-mono-num font-semibold text-slate-800">₹0.00</span>
+            </div>
+
+            <!-- 3. Discount Section -->
+            <div class="flex items-center justify-between gap-2 py-0.5">
+                <span class="text-slate-500 font-medium shrink-0">Discount</span>
+                
+                <div class="flex items-center gap-1.5 ml-auto">
+                    <!-- % / ₹ Mode Switcher -->
+                    <div class="inline-flex rounded-lg p-0.5 bg-stone-200/80 text-xs font-bold">
+                        <button
+                            id="discPercentBtn"
+                            type="button"
+                            class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm transition cursor-pointer"
+                        >%</button>
+                        <button
+                            id="discFlatBtn"
+                            type="button"
+                            class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer"
+                        >₹</button>
+                    </div>
+
+                    <!-- Discount Numeric Input -->
+                    <input
+                        id="discountInput"
+                        type="number"
+                        inputmode="decimal"
+                        min="0"
+                        step="any"
+                        placeholder="0"
+                        aria-label="Discount value"
+                        class="w-20 px-2.5 py-1 rounded-lg bg-white border border-stone-200 font-mono-num text-xs font-semibold text-right text-slate-800 focus:outline-none focus:border-orange-500 transition"
+                    >
+
+                    <!-- Live Discount Deduction -->
+                    <span id="summaryDiscountAmount" class="font-mono-num text-xs font-semibold text-emerald-600 min-w-[68px] text-right">
+                        - ₹0.00
+                    </span>
+                </div>
+            </div>
+
+            <!-- 4. 5% GST Section with Explicit ON/OFF Toggle -->
+            <div class="flex items-center justify-between py-0.5">
+                <div class="flex items-center gap-2.5">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-600 font-medium">GST (5%)</span>
+                            <button
+                                id="gstToggleBtn"
+                                type="button"
+                                role="switch"
+                                aria-checked="true"
+                                class="px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide transition cursor-pointer bg-emerald-100 text-emerald-700 border border-emerald-200"
+                            >
+                                ON
+                            </button>
+                        </div>
+                        <span id="gstSubtext" class="block text-[10px] text-slate-400 font-mono-num mt-0.5">
+                            CGST 2.5% (₹0.00) + SGST 2.5% (₹0.00)
+                        </span>
+                    </div>
+                </div>
+                <span id="summaryGstTotal" class="font-mono-num font-semibold text-slate-700">+ ₹0.00</span>
+            </div>
+
+            <!-- 5. Grand Total Payable -->
+            <div class="pt-3 border-t border-stone-200 flex items-baseline justify-between">
+                <span class="font-bold text-base text-slate-900">Grand Total</span>
+                <span id="summaryGrandTotal" class="font-mono-num text-2xl font-bold text-orange-600">₹0.00</span>
+            </div>
+
+            <!-- Inline Split Bill Control -->
+            <div class="pt-3 border-t border-dashed border-stone-200 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-medium text-slate-500">Split Bill</span>
+                    <div class="inline-flex items-center bg-white border border-stone-200 rounded-xl p-0.5">
+                        <button
+                            id="splitMinusBtn"
+                            type="button"
+                            aria-label="Decrease people"
+                            class="w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                        >−</button>
+                        <span id="splitCountDisplay" class="px-2.5 font-mono-num text-xs font-bold text-slate-800 min-w-[30px] text-center">1</span>
+                        <button
+                            id="splitPlusBtn"
+                            type="button"
+                            aria-label="Increase people"
+                            class="w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                        >+</button>
+                    </div>
+                </div>
+
+                <div class="text-right">
+                    <span class="text-xs text-slate-500">Per Person:</span>
+                    <span id="summaryPerPerson" class="font-mono-num text-sm font-bold text-slate-900 ml-1">₹0.00</span>
+                </div>
+            </div>
+
+            <!-- Copy Bill Button -->
+            <div class="pt-2">
+                <button
+                    id="copyBillBtn"
+                    type="button"
+                    class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
+                >
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <span>Copy Bill</span>
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <!-- PWA Install Guide Modal (iOS & Android) -->
+    <div
+        id="installModal"
+        class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-900/40 p-4"
+        aria-modal="true"
+        role="dialog"
+    >
+        <div id="installModalCard" class="w-full max-w-sm bg-white rounded-3xl shadow-xl border border-stone-200 p-5 space-y-4 row-enter">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-9 h-9 rounded-xl bg-orange-50 border border-orange-100 text-orange-600 flex items-center justify-center text-lg select-none">🧾</span>
+                    <div>
+                        <h2 class="font-bold text-sm text-slate-900">Install Food Bill App</h2>
+                        <p class="text-[11px] text-slate-400">Add to Home Screen for instant offline use</p>
+                    </div>
+                </div>
+                <button
+                    id="closeModalXBtn"
+                    type="button"
+                    aria-label="Close modal"
+                    class="w-7 h-7 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-stone-100 flex items-center justify-center text-base font-bold transition cursor-pointer"
+                >×</button>
+            </div>
+
+            <!-- Platform Switcher Tabs -->
+            <div class="grid grid-cols-2 gap-1 p-1 bg-stone-100 rounded-xl text-xs font-semibold">
+                <button
+                    id="tabIosBtn"
+                    type="button"
+                    class="py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs cursor-pointer"
+                >
+                    iPhone / iOS
+                </button>
+                <button
+                    id="tabAndroidBtn"
+                    type="button"
+                    class="py-1.5 rounded-lg transition text-slate-500 hover:text-slate-800 cursor-pointer"
+                >
+                    Android
+                </button>
+            </div>
+
+            <!-- iOS Safari Instructions -->
+            <div id="iosInstallSteps" class="space-y-2.5 text-xs text-slate-600">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                    <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center shrink-0">1</span>
+                    <div class="flex-1">
+                        Tap the <strong class="text-slate-800">Share</strong> button in Safari's bottom bar
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                    <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center shrink-0">2</span>
+                    <div class="flex-1">
+                        Scroll down and tap <strong class="text-slate-800">Add to Home Screen</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Android Chrome Instructions -->
+            <div id="androidInstallSteps" class="hidden space-y-2.5 text-xs text-slate-600">
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                    <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center shrink-0">1</span>
+                    <div class="flex-1">
+                        Tap the browser <strong class="text-slate-800">Menu (⋮)</strong> icon in Chrome
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 p-2.5 rounded-xl bg-stone-50 border border-stone-200/70">
+                    <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 font-bold flex items-center justify-center shrink-0">2</span>
+                    <div class="flex-1">
+                        Tap <strong class="text-slate-800">Install app</strong> or <strong class="text-slate-800">Add to Home screen</strong>
+                    </div>
+                </div>
+            </div>
+
+            <button
+                id="closeModalGotItBtn"
+                type="button"
+                class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition cursor-pointer"
+            >
+                Got it
+            </button>
+        </div>
+    </div>
+
+    <!-- Minimal Toast Banner -->
+    <div
+        id="toastBanner"
+        class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200"
+    >
+        <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-xs font-semibold">
+            <span id="toastMessage">Copied to clipboard!</span>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            var GST_RATE = 5; // Fixed 5% GST (2.5% CGST + 2.5% SGST)
+            var STORAGE_KEY = 'food_bill_pwa_clean_v1';
+
+            var state = {
+                items: [
+                    { id: 1, name: 'Food 1', price: '' }
+                ],
+                nextId: 2,
+                discountType: 'percent', // 'percent' or 'flat'
+                discountValue: '',
+                gstEnabled: true,
+                splitCount: 1
+            };
+
+            var deferredInstallPrompt = null;
+            var toastTimeoutId = null;
+
+            /* Format number in Indian Rupee format (e.g., 1,250.50) */
+            function formatINR(value) {
+                var num = Number(value);
+                if (!isFinite(num) || isNaN(num)) {
+                    num = 0;
+                }
+                return num.toLocaleString('en-IN', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+            }
+
+            /* Show non-blocking toast message */
+            function showToast(msg) {
+                var banner = document.getElementById('toastBanner');
+                var textEl = document.getElementById('toastMessage');
+                if (!banner || !textEl) return;
+
+                textEl.textContent = msg;
+                banner.classList.remove('opacity-0', 'translate-y-2');
+                banner.classList.add('opacity-100', 'translate-y-0');
+
+                if (toastTimeoutId) {
+                    clearTimeout(toastTimeoutId);
+                }
+                toastTimeoutId = setTimeout(function () {
+                    banner.classList.remove('opacity-100', 'translate-y-0');
+                    banner.classList.add('opacity-0', 'translate-y-2');
+                }, 2000);
+            }
+
+            function loadState() {
+                try {
+                    var raw = localStorage.getItem(STORAGE_KEY);
+                    if (!raw) return;
+                    var parsed = JSON.parse(raw);
+                    if (parsed && Array.isArray(parsed.items) && parsed.items.length > 0) {
+                        state.items = parsed.items.map(function (item, idx) {
+                            return {
+                                id: Number(item.id) || (idx + 1),
+                                name: typeof item.name === 'string' ? item.name : ('Food ' + (idx + 1)),
+                                price: item.price !== undefined && item.price !== null ? String(item.price) : ''
+                            };
+                        });
+                        var maxId = 0;
+                        state.items.forEach(function (it) {
+                            if (it.id > maxId) maxId = it.id;
+                        });
+                        state.nextId = maxId + 1;
+                        state.discountType = parsed.discountType === 'flat' ? 'flat' : 'percent';
+                        state.discountValue = parsed.discountValue !== undefined ? String(parsed.discountValue) : '';
+                        state.gstEnabled = typeof parsed.gstEnabled === 'boolean' ? parsed.gstEnabled : true;
+                        var sp = parseInt(parsed.splitCount, 10);
+                        state.splitCount = (!isNaN(sp) && sp >= 1 && sp <= 50) ? sp : 1;
+                    }
+                } catch (err) {
+                    // Ignore storage errors in restricted contexts
+                }
+            }
+
+            function saveState() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                } catch (err) {
+                    // Ignore storage errors
+                }
+            }
+
+            function computeTotals() {
+                var subtotal = 0;
+                for (var i = 0; i < state.items.length; i++) {
+                    var p = parseFloat(state.items[i].price);
+                    if (!isNaN(p) && p > 0) {
+                        subtotal += p;
+                    }
+                }
+
+                var rawDisc = parseFloat(state.discountValue);
+                if (isNaN(rawDisc) || rawDisc < 0) {
+                    rawDisc = 0;
+                }
+
+                var discountAmount = 0;
+                if (state.discountType === 'percent') {
+                    var clampedPct = Math.min(100, rawDisc);
+                    discountAmount = subtotal * (clampedPct / 100);
+                } else {
+                    discountAmount = Math.min(subtotal, rawDisc);
+                }
+
+                var taxableAmount = Math.max(0, subtotal - discountAmount);
+                var gstAmount = state.gstEnabled ? (taxableAmount * (GST_RATE / 100)) : 0;
+                var halfGst = gstAmount / 2;
+                var grandTotal = taxableAmount + gstAmount;
+                var splitCount = Math.max(1, Math.min(50, parseInt(state.splitCount, 10) || 1));
+                var perPerson = grandTotal / splitCount;
+
+                return {
+                    subtotal: subtotal,
+                    discountAmount: discountAmount,
+                    taxableAmount: taxableAmount,
+                    gstAmount: gstAmount,
+                    halfGst: halfGst,
+                    grandTotal: grandTotal,
+                    splitCount: splitCount,
+                    perPerson: perPerson
+                };
+            }
+
+            function updateSummaryUI() {
+                var t = computeTotals();
+
+                var subEl = document.getElementById('summarySubtotal');
+                var discEl = document.getElementById('summaryDiscountAmount');
+                var gstEl = document.getElementById('summaryGstTotal');
+                var gstSubEl = document.getElementById('gstSubtext');
+                var gstBtn = document.getElementById('gstToggleBtn');
+                var grandEl = document.getElementById('summaryGrandTotal');
+                var splitCountEl = document.getElementById('splitCountDisplay');
+                var perPersonEl = document.getElementById('summaryPerPerson');
+                var pctBtn = document.getElementById('discPercentBtn');
+                var flatBtn = document.getElementById('discFlatBtn');
+
+                if (subEl) subEl.textContent = '₹' + formatINR(t.subtotal);
+                if (discEl) discEl.textContent = '- ₹' + formatINR(t.discountAmount);
+                if (grandEl) grandEl.textContent = '₹' + formatINR(t.grandTotal);
+                if (splitCountEl) splitCountEl.textContent = String(t.splitCount);
+                if (perPersonEl) perPersonEl.textContent = '₹' + formatINR(t.perPerson);
+
+                // Update % vs ₹ toggle appearance
+                if (pctBtn && flatBtn) {
+                    if (state.discountType === 'percent') {
+                        pctBtn.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm transition cursor-pointer';
+                        flatBtn.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer';
+                    } else {
+                        flatBtn.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm transition cursor-pointer';
+                        pctBtn.className = 'px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 transition cursor-pointer';
+                    }
+                }
+
+                // Update GST ON/OFF button and breakdown text
+                if (gstBtn && gstEl && gstSubEl) {
+                    if (state.gstEnabled) {
+                        gstBtn.textContent = 'ON';
+                        gstBtn.setAttribute('aria-checked', 'true');
+                        gstBtn.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide transition cursor-pointer bg-emerald-100 text-emerald-700 border border-emerald-200';
+                        gstEl.textContent = '+ ₹' + formatINR(t.gstAmount);
+                        gstEl.className = 'font-mono-num font-semibold text-slate-700';
+                        gstSubEl.textContent = 'CGST 2.5% (₹' + formatINR(t.halfGst) + ') + SGST 2.5% (₹' + formatINR(t.halfGst) + ')';
+                    } else {
+                        gstBtn.textContent = 'OFF';
+                        gstBtn.setAttribute('aria-checked', 'false');
+                        gstBtn.className = 'px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide transition cursor-pointer bg-stone-200 text-slate-500 border border-stone-300';
+                        gstEl.textContent = '₹0.00';
+                        gstEl.className = 'font-mono-num font-semibold text-slate-400';
+                        gstSubEl.textContent = 'GST OFF (0%)';
+                    }
+                }
+
+                saveState();
+            }
+
+            function renderFoodList(focusItemId) {
+                var container = document.getElementById('foodItemsContainer');
+                if (!container) return;
+
+                container.innerHTML = '';
+
+                state.items.forEach(function (item, index) {
+                    var row = document.createElement('div');
+                    row.className = 'py-2 flex items-center gap-2 row-enter';
+
+                    // Editable Food Name Input
+                    var nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.value = item.name;
+                    nameInput.placeholder = 'Food ' + (index + 1);
+                    nameInput.setAttribute('aria-label', 'Food item ' + (index + 1) + ' name');
+                    nameInput.className = 'flex-1 min-w-0 py-1.5 px-2 -ml-2 rounded-lg text-sm font-medium text-slate-700 placeholder-slate-400 bg-transparent hover:bg-stone-50 focus:bg-stone-50 focus:outline-none transition';
+                    nameInput.addEventListener('input', function (e) {
+                        item.name = e.target.value;
+                        saveState();
+                    });
+
+                    // Price Wrapper with ₹ Prefix
+                    var priceWrap = document.createElement('div');
+                    priceWrap.className = 'relative w-32 shrink-0';
+
+                    var rupeeSymbol = document.createElement('span');
+                    rupeeSymbol.className = 'absolute left-2.5 top-1/2 -translate-y-1/2 font-mono-num text-xs text-slate-400 pointer-events-none select-none';
+                    rupeeSymbol.textContent = '₹';
+
+                    var priceInput = document.createElement('input');
+                    priceInput.type = 'number';
+                    priceInput.inputMode = 'decimal';
+                    priceInput.min = '0';
+                    priceInput.step = 'any';
+                    priceInput.id = 'food_price_' + item.id;
+                    priceInput.value = item.price;
+                    priceInput.placeholder = '0';
+                    priceInput.setAttribute('aria-label', 'Price for ' + (item.name || ('Food ' + (index + 1))));
+                    priceInput.className = 'w-full pl-6 pr-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 font-mono-num text-sm font-semibold text-right text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition';
+
+                    priceInput.addEventListener('input', function (e) {
+                        item.price = e.target.value;
+                        updateSummaryUI();
+                    });
+
+                    priceInput.addEventListener('keydown', function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (index === state.items.length - 1) {
+                                addFoodRow(true);
+                            } else {
+                                var nextItem = state.items[index + 1];
+                                if (nextItem) {
+                                    var nextEl = document.getElementById('food_price_' + nextItem.id);
+                                    if (nextEl) nextEl.focus();
+                                }
+                            }
+                        }
+                    });
+
+                    priceWrap.appendChild(rupeeSymbol);
+                    priceWrap.appendChild(priceInput);
+
+                    // Remove (×) Button
+                    var removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.setAttribute('aria-label', 'Remove item');
+                    removeBtn.className = 'w-7 h-7 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center text-base font-bold leading-none transition shrink-0 cursor-pointer';
+                    removeBtn.textContent = '×';
+                    removeBtn.addEventListener('click', function () {
+                        removeFoodRow(item.id);
+                    });
+
+                    row.appendChild(nameInput);
+                    row.appendChild(priceWrap);
+                    row.appendChild(removeBtn);
+
+                    container.appendChild(row);
+                });
+
+                if (focusItemId) {
+                    var targetInput = document.getElementById('food_price_' + focusItemId);
+                    if (targetInput) {
+                        targetInput.focus();
+                    }
+                }
+            }
+
+            function addFoodRow(shouldFocus) {
+                var nextIndex = state.items.length + 1;
+                var newId = state.nextId++;
+                state.items.push({
+                    id: newId,
+                    name: 'Food ' + nextIndex,
+                    price: ''
+                });
+                renderFoodList(shouldFocus ? newId : null);
+                updateSummaryUI();
+            }
+
+            function removeFoodRow(itemId) {
+                if (state.items.length <= 1) {
+                    state.items[0].name = 'Food 1';
+                    state.items[0].price = '';
+                } else {
+                    state.items = state.items.filter(function (it) {
+                        return it.id !== itemId;
+                    });
+                }
+                renderFoodList(null);
+                updateSummaryUI();
+            }
+
+            function resetBill() {
+                state.items = [
+                    { id: 1, name: 'Food 1', price: '' }
+                ];
+                state.nextId = 2;
+                state.discountType = 'percent';
+                state.discountValue = '';
+                state.gstEnabled = true;
+                state.splitCount = 1;
+
+                var discInput = document.getElementById('discountInput');
+                if (discInput) discInput.value = '';
+
+                renderFoodList(1);
+                updateSummaryUI();
+                showToast('Bill reset to Food 1');
+            }
+
+            function copyBillReceipt() {
+                var t = computeTotals();
+                var lines = [];
+                lines.push('🧾 FOOD BILL RECEIPT');
+                lines.push('------------------------');
+
+                state.items.forEach(function (item, idx) {
+                    var label = (item.name && item.name.trim()) ? item.name.trim() : ('Food ' + (idx + 1));
+                    var p = parseFloat(item.price);
+                    var priceNum = (!isNaN(p) && p > 0) ? p : 0;
+                    lines.push(label + ': ₹' + formatINR(priceNum));
+                });
+
+                lines.push('------------------------');
+                lines.push('Subtotal: ₹' + formatINR(t.subtotal));
+
+                if (t.discountAmount > 0) {
+                    var discSuffix = state.discountType === 'percent' ? (' (' + state.discountValue + '%)') : '';
+                    lines.push('Discount' + discSuffix + ': - ₹' + formatINR(t.discountAmount));
+                }
+
+                if (state.gstEnabled) {
+                    lines.push('GST (5%): + ₹' + formatINR(t.gstAmount));
+                    lines.push('  • CGST (2.5%): ₹' + formatINR(t.halfGst));
+                    lines.push('  • SGST (2.5%): ₹' + formatINR(t.halfGst));
+                } else {
+                    lines.push('GST (5%): OFF (₹0.00)');
+                }
+
+                lines.push('------------------------');
+                lines.push('GRAND TOTAL: ₹' + formatINR(t.grandTotal));
+
+                if (t.splitCount > 1) {
+                    lines.push('Split (' + t.splitCount + ' People): ₹' + formatINR(t.perPerson) + ' / person');
+                }
+
+                var receiptText = lines.join('\n');
+
+                // Copy via textarea + execCommand for reliable iframe/webview support
+                var textArea = document.createElement('textarea');
+                textArea.value = receiptText;
+                textArea.style.position = 'fixed';
+                textArea.style.top = '-9999px';
+                textArea.style.left = '-9999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+
+                var copied = false;
+                try {
+                    copied = document.execCommand('copy');
+                } catch (err) {
+                    copied = false;
+                }
+                document.body.removeChild(textArea);
+
+                if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(receiptText).catch(function () {});
+                }
+
+                showToast('Receipt copied to clipboard!');
+            }
+
+            function isIosDevice() {
+                var ua = window.navigator.userAgent || '';
+                return /iphone|ipad|ipod/i.test(ua) ||
+                    (window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1);
+            }
+
+            function switchInstallTab(platform) {
+                var iosBtn = document.getElementById('tabIosBtn');
+                var androidBtn = document.getElementById('tabAndroidBtn');
+                var iosSteps = document.getElementById('iosInstallSteps');
+                var androidSteps = document.getElementById('androidInstallSteps');
+
+                if (!iosBtn || !androidBtn || !iosSteps || !androidSteps) return;
+
+                if (platform === 'ios') {
+                    iosBtn.className = 'py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs cursor-pointer';
+                    androidBtn.className = 'py-1.5 rounded-lg transition text-slate-500 hover:text-slate-800 cursor-pointer';
+                    iosSteps.classList.remove('hidden');
+                    androidSteps.classList.add('hidden');
+                } else {
+                    androidBtn.className = 'py-1.5 rounded-lg transition bg-white text-slate-900 shadow-xs cursor-pointer';
+                    iosBtn.className = 'py-1.5 rounded-lg transition text-slate-500 hover:text-slate-800 cursor-pointer';
+                    androidSteps.classList.remove('hidden');
+                    iosSteps.classList.add('hidden');
+                }
+            }
+
+            function openInstallModal() {
+                switchInstallTab(isIosDevice() ? 'ios' : 'android');
+                var modal = document.getElementById('installModal');
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+
+            function closeInstallModal() {
+                var modal = document.getElementById('installModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            }
+
+            function handleInstallButtonClick() {
+                if (deferredInstallPrompt) {
+                    try {
+                        deferredInstallPrompt.prompt();
+                        deferredInstallPrompt.userChoice.then(function (choice) {
+                            if (choice && choice.outcome === 'accepted') {
+                                deferredInstallPrompt = null;
+                            }
+                        }).catch(function () {});
+                        return;
+                    } catch (err) {
+                        // Fall through to modal guide if prompt fails
+                    }
+                }
+                openInstallModal();
+            }
+
+            function initPwaSafely() {
+                try {
+                    var manifestObj = {
+                        name: 'Food Bill Calculator (5% GST)',
+                        short_name: 'Food Bill',
+                        start_url: '.',
+                        display: 'standalone',
+                        background_color: '#f5f5f4',
+                        theme_color: '#ffffff'
+                    };
+                    var manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+                    var manifestLink = document.createElement('link');
+                    manifestLink.rel = 'manifest';
+                    manifestLink.href = URL.createObjectURL(manifestBlob);
+                    document.head.appendChild(manifestLink);
+
+                    window.addEventListener('beforeinstallprompt', function (e) {
+                        e.preventDefault();
+                        deferredInstallPrompt = e;
+                    });
+
+                    window.addEventListener('appinstalled', function () {
+                        deferredInstallPrompt = null;
+                        closeInstallModal();
+                        showToast('App installed!');
+                    });
+
+                    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+                        var swScript = [
+                            "self.addEventListener('install', function(e) { self.skipWaiting(); });",
+                            "self.addEventListener('activate', function(e) { e.waitUntil(clients.claim()); });",
+                            "self.addEventListener('fetch', function(e) { e.respondWith(fetch(e.request).catch(function() { return caches.match(e.request); })); });"
+                        ].join('\n');
+                        var swBlob = new Blob([swScript], { type: 'application/javascript' });
+                        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(function () {});
+                    }
+                } catch (err) {
+                    // Never allow PWA setup to interfere with calculator functionality
+                }
+            }
+
+            function bindEventsAndInit() {
+                loadState();
+
+                // Sync initial discount input value
+                var discountInput = document.getElementById('discountInput');
+                if (discountInput) {
+                    discountInput.value = state.discountValue;
+                    discountInput.addEventListener('input', function (e) {
+                        state.discountValue = e.target.value;
+                        updateSummaryUI();
+                    });
+                }
+
+                // + Add Food button
+                var addFoodBtn = document.getElementById('addFoodBtn');
+                if (addFoodBtn) {
+                    addFoodBtn.addEventListener('click', function () {
+                        addFoodRow(true);
+                    });
+                }
+
+                // Reset button
+                var resetBillBtn = document.getElementById('resetBillBtn');
+                if (resetBillBtn) {
+                    resetBillBtn.addEventListener('click', resetBill);
+                }
+
+                // Discount % and ₹ toggle buttons
+                var discPercentBtn = document.getElementById('discPercentBtn');
+                if (discPercentBtn) {
+                    discPercentBtn.addEventListener('click', function () {
+                        state.discountType = 'percent';
+                        updateSummaryUI();
+                    });
+                }
+
+                var discFlatBtn = document.getElementById('discFlatBtn');
+                if (discFlatBtn) {
+                    discFlatBtn.addEventListener('click', function () {
+                        state.discountType = 'flat';
+                        updateSummaryUI();
+                    });
+                }
+
+                // GST (5%) ON/OFF toggle button
+                var gstToggleBtn = document.getElementById('gstToggleBtn');
+                if (gstToggleBtn) {
+                    gstToggleBtn.addEventListener('click', function () {
+                        state.gstEnabled = !state.gstEnabled;
+                        updateSummaryUI();
+                    });
+                }
+
+                // Split Bill - and + buttons (1 to 50 people)
+                var splitMinusBtn = document.getElementById('splitMinusBtn');
+                if (splitMinusBtn) {
+                    splitMinusBtn.addEventListener('click', function () {
+                        state.splitCount = Math.max(1, (parseInt(state.splitCount, 10) || 1) - 1);
+                        updateSummaryUI();
+                    });
+                }
+
+                var splitPlusBtn = document.getElementById('splitPlusBtn');
+                if (splitPlusBtn) {
+                    splitPlusBtn.addEventListener('click', function () {
+                        state.splitCount = Math.min(50, (parseInt(state.splitCount, 10) || 1) + 1);
+                        updateSummaryUI();
+                    });
+                }
+
+                // Copy Bill button
+                var copyBillBtn = document.getElementById('copyBillBtn');
+                if (copyBillBtn) {
+                    copyBillBtn.addEventListener('click', copyBillReceipt);
+                }
+
+                // Install App button & Modal controls
+                var installAppBtn = document.getElementById('installAppBtn');
+                if (installAppBtn) {
+                    installAppBtn.addEventListener('click', handleInstallButtonClick);
+                }
+
+                var closeModalXBtn = document.getElementById('closeModalXBtn');
+                if (closeModalXBtn) {
+                    closeModalXBtn.addEventListener('click', closeInstallModal);
+                }
+
+                var closeModalGotItBtn = document.getElementById('closeModalGotItBtn');
+                if (closeModalGotItBtn) {
+                    closeModalGotItBtn.addEventListener('click', closeInstallModal);
+                }
+
+                var installModal = document.getElementById('installModal');
+                if (installModal) {
+                    installModal.addEventListener('click', function (e) {
+                        if (e.target === installModal) {
+                            closeInstallModal();
+                        }
+                    });
+                }
+
+                var tabIosBtn = document.getElementById('tabIosBtn');
+                if (tabIosBtn) {
+                    tabIosBtn.addEventListener('click', function () {
+                        switchInstallTab('ios');
+                    });
+                }
+
+                var tabAndroidBtn = document.getElementById('tabAndroidBtn');
+                if (tabAndroidBtn) {
+                    tabAndroidBtn.addEventListener('click', function () {
+                        switchInstallTab('android');
+                    });
+                }
+
+                // Render initial food items and summary
+                renderFoodList(null);
+                updateSummaryUI();
+
+                // Initialize PWA manifest & service worker inside try-catch
+                initPwaSafely();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bindEventsAndInit);
+            } else {
+                bindEventsAndInit();
+            }
+        })();
+    </script>
+</body>
+</html>
