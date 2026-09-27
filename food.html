@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Food Bill">
-    <title>Food Bill Calculator (5% GST)</title>
+    <title>Food Bill Receipt (5% GST)</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -51,13 +51,61 @@
         .row-enter {
             animation: rowSlideIn 0.14s ease-out forwards;
         }
+
+        /* Print / Save-as-PDF Receipt Styling */
+        @media print {
+            @page {
+                size: auto;
+                margin: 12mm;
+            }
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                min-height: auto !important;
+                display: block !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            .print-only-inline {
+                display: inline !important;
+            }
+            main#receiptCard {
+                max-width: 100% !important;
+                width: 100% !important;
+                border: 1px solid #d6d3d1 !important;
+                box-shadow: none !important;
+                border-radius: 12px !important;
+                margin: 0 auto !important;
+            }
+            input.receipt-input {
+                border: none !important;
+                background: transparent !important;
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+                box-shadow: none !important;
+                color: #0f172a !important;
+            }
+            input.receipt-price-input {
+                border: none !important;
+                background: transparent !important;
+                padding-right: 0 !important;
+                box-shadow: none !important;
+                color: #0f172a !important;
+            }
+        }
     </style>
 </head>
 
 <body class="bg-stone-100 text-slate-800 min-h-screen py-6 px-4 flex flex-col items-center justify-start sm:justify-center">
 
     <!-- Single Minimal Receipt Card -->
-    <main class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-stone-200/90 overflow-hidden">
+    <main id="receiptCard" class="w-full max-w-md bg-white rounded-3xl shadow-sm border border-stone-200/90 overflow-hidden">
         
         <!-- 1. Receipt Header -->
         <header class="px-5 pt-5 pb-4 border-b border-stone-100 flex items-center justify-between gap-2">
@@ -66,12 +114,12 @@
                     🧾
                 </div>
                 <div>
-                    <h1 class="font-bold text-base text-slate-900 leading-tight">Food Bill</h1>
-                    <p class="text-[11px] text-slate-400 font-medium">INR (₹) • 5% GST Calculator</p>
+                    <h1 class="font-bold text-base text-slate-900 leading-tight">Food Bill Receipt</h1>
+                    <p id="receiptDateTime" class="text-[11px] text-slate-400 font-medium">INR (₹) • 5% GST Calculator</p>
                 </div>
             </div>
 
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-1.5 no-print">
                 <!-- Install App Button (iOS & Android) -->
                 <button
                     id="installAppBtn"
@@ -109,7 +157,7 @@
             <button
                 id="addFoodBtn"
                 type="button"
-                class="mt-3 w-full py-2.5 px-4 rounded-xl border border-dashed border-stone-300 hover:border-orange-500 hover:bg-orange-50/60 text-slate-700 hover:text-orange-600 font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
+                class="no-print mt-3 w-full py-2.5 px-4 rounded-xl border border-dashed border-stone-300 hover:border-orange-500 hover:bg-orange-50/60 text-slate-700 hover:text-orange-600 font-semibold text-xs flex items-center justify-center gap-1.5 transition active:scale-[0.99] cursor-pointer"
             >
                 <svg class="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
@@ -129,11 +177,14 @@
 
             <!-- 3. Discount Section -->
             <div class="flex items-center justify-between gap-2 py-0.5">
-                <span class="text-slate-500 font-medium shrink-0">Discount</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-slate-500 font-medium shrink-0">Discount</span>
+                    <span id="printDiscountLabel" class="hidden print-only-inline text-xs text-slate-400 font-mono-num"></span>
+                </div>
                 
                 <div class="flex items-center gap-1.5 ml-auto">
-                    <!-- % / ₹ Mode Switcher -->
-                    <div class="inline-flex rounded-lg p-0.5 bg-stone-200/80 text-xs font-bold">
+                    <!-- % / ₹ Mode Switcher (Hidden in PDF Print) -->
+                    <div class="no-print inline-flex rounded-lg p-0.5 bg-stone-200/80 text-xs font-bold">
                         <button
                             id="discPercentBtn"
                             type="button"
@@ -146,7 +197,7 @@
                         >₹</button>
                     </div>
 
-                    <!-- Discount Numeric Input -->
+                    <!-- Discount Numeric Input (Hidden in PDF Print) -->
                     <input
                         id="discountInput"
                         type="number"
@@ -155,7 +206,7 @@
                         step="any"
                         placeholder="0"
                         aria-label="Discount value"
-                        class="w-20 px-2.5 py-1 rounded-lg bg-white border border-stone-200 font-mono-num text-xs font-semibold text-right text-slate-800 focus:outline-none focus:border-orange-500 transition"
+                        class="no-print w-20 px-2.5 py-1 rounded-lg bg-white border border-stone-200 font-mono-num text-xs font-semibold text-right text-slate-800 focus:outline-none focus:border-orange-500 transition"
                     >
 
                     <!-- Live Discount Deduction -->
@@ -204,16 +255,17 @@
                             id="splitMinusBtn"
                             type="button"
                             aria-label="Decrease people"
-                            class="w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                            class="no-print w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
                         >−</button>
                         <span id="splitCountDisplay" class="px-2.5 font-mono-num text-xs font-bold text-slate-800 min-w-[30px] text-center">1</span>
                         <button
                             id="splitPlusBtn"
                             type="button"
                             aria-label="Increase people"
-                            class="w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
+                            class="no-print w-7 h-6 rounded-lg text-slate-600 hover:bg-stone-100 active:scale-95 font-bold text-sm flex items-center justify-center transition cursor-pointer"
                         >+</button>
                     </div>
+                    <span class="hidden print-only-inline text-xs text-slate-400">people</span>
                 </div>
 
                 <div class="text-right">
@@ -222,18 +274,23 @@
                 </div>
             </div>
 
-            <!-- Copy Bill Button -->
-            <div class="pt-2">
+            <!-- Download PDF (Print Command) Button -->
+            <div class="pt-2 no-print">
                 <button
-                    id="copyBillBtn"
+                    id="downloadPdfBtn"
                     type="button"
-                    class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shadow-xs"
+                    class="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-[0.99] text-white font-semibold text-xs flex items-center justify-center gap-2 transition cursor-pointer shadow-xs"
                 >
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    <svg class="w-4 h-4 stroke-[2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/>
                     </svg>
-                    <span>Copy Bill</span>
+                    <span>Download PDF (Print Bill)</span>
                 </button>
+            </div>
+
+            <!-- Print Footer Note -->
+            <div class="hidden print-only pt-3 border-t border-stone-200 text-center text-[11px] text-slate-400">
+                Thank you! • Generated via Food Bill Calculator (INR ₹)
             </div>
         </section>
     </main>
@@ -241,7 +298,7 @@
     <!-- PWA Install Guide Modal (iOS & Android) -->
     <div
         id="installModal"
-        class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-900/40 p-4"
+        class="no-print fixed inset-0 z-50 hidden items-end sm:items-center justify-center bg-slate-900/40 p-4"
         aria-modal="true"
         role="dialog"
     >
@@ -325,10 +382,10 @@
     <!-- Minimal Toast Banner -->
     <div
         id="toastBanner"
-        class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200"
+        class="no-print fixed bottom-5 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 translate-y-2 transition-all duration-200"
     >
         <div class="px-4 py-2 rounded-xl bg-slate-900 text-white shadow-lg text-xs font-semibold">
-            <span id="toastMessage">Copied to clipboard!</span>
+            <span id="toastMessage">Ready to print!</span>
         </div>
     </div>
 
@@ -337,13 +394,14 @@
             'use strict';
 
             var GST_RATE = 5; // Fixed 5% GST (2.5% CGST + 2.5% SGST)
-            var STORAGE_KEY = 'food_bill_pwa_clean_v1';
+            var STORAGE_KEY = 'food_bill_pwa_pdf_v2';
 
             var state = {
                 items: [
-                    { id: 1, name: 'Food 1', price: '' }
+                    { id: 1, name: 'Food 1', price: '' },
+                    { id: 2, name: 'Food 2', price: '' }
                 ],
-                nextId: 2,
+                nextId: 3,
                 discountType: 'percent', // 'percent' or 'flat'
                 discountValue: '',
                 gstEnabled: true,
@@ -365,6 +423,25 @@
                 });
             }
 
+            /* Update live receipt timestamp for PDF/Print header */
+            function updateReceiptTimestamp() {
+                var el = document.getElementById('receiptDateTime');
+                if (!el) return;
+                try {
+                    var now = new Date();
+                    var formatted = now.toLocaleString('en-IN', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    el.textContent = formatted + ' • INR (₹)';
+                } catch (err) {
+                    el.textContent = 'INR (₹) • 5% GST Receipt';
+                }
+            }
+
             /* Show non-blocking toast message */
             function showToast(msg) {
                 var banner = document.getElementById('toastBanner');
@@ -381,7 +458,7 @@
                 toastTimeoutId = setTimeout(function () {
                     banner.classList.remove('opacity-100', 'translate-y-0');
                     banner.classList.add('opacity-0', 'translate-y-2');
-                }, 2000);
+                }, 2200);
             }
 
             function loadState() {
@@ -452,6 +529,7 @@
 
                 return {
                     subtotal: subtotal,
+                    rawDisc: rawDisc,
                     discountAmount: discountAmount,
                     taxableAmount: taxableAmount,
                     gstAmount: gstAmount,
@@ -467,6 +545,7 @@
 
                 var subEl = document.getElementById('summarySubtotal');
                 var discEl = document.getElementById('summaryDiscountAmount');
+                var printDiscLabel = document.getElementById('printDiscountLabel');
                 var gstEl = document.getElementById('summaryGstTotal');
                 var gstSubEl = document.getElementById('gstSubtext');
                 var gstBtn = document.getElementById('gstToggleBtn');
@@ -478,6 +557,15 @@
 
                 if (subEl) subEl.textContent = '₹' + formatINR(t.subtotal);
                 if (discEl) discEl.textContent = '- ₹' + formatINR(t.discountAmount);
+                if (printDiscLabel) {
+                    if (t.rawDisc > 0) {
+                        printDiscLabel.textContent = state.discountType === 'percent'
+                            ? '(' + t.rawDisc + '%)'
+                            : '(Flat ₹' + formatINR(t.rawDisc) + ')';
+                    } else {
+                        printDiscLabel.textContent = '';
+                    }
+                }
                 if (grandEl) grandEl.textContent = '₹' + formatINR(t.grandTotal);
                 if (splitCountEl) splitCountEl.textContent = String(t.splitCount);
                 if (perPersonEl) perPersonEl.textContent = '₹' + formatINR(t.perPerson);
@@ -531,7 +619,7 @@
                     nameInput.value = item.name;
                     nameInput.placeholder = 'Food ' + (index + 1);
                     nameInput.setAttribute('aria-label', 'Food item ' + (index + 1) + ' name');
-                    nameInput.className = 'flex-1 min-w-0 py-1.5 px-2 -ml-2 rounded-lg text-sm font-medium text-slate-700 placeholder-slate-400 bg-transparent hover:bg-stone-50 focus:bg-stone-50 focus:outline-none transition';
+                    nameInput.className = 'receipt-input flex-1 min-w-0 py-1.5 px-2 -ml-2 rounded-lg text-sm font-medium text-slate-700 placeholder-slate-400 bg-transparent hover:bg-stone-50 focus:bg-stone-50 focus:outline-none transition';
                     nameInput.addEventListener('input', function (e) {
                         item.name = e.target.value;
                         saveState();
@@ -552,9 +640,9 @@
                     priceInput.step = 'any';
                     priceInput.id = 'food_price_' + item.id;
                     priceInput.value = item.price;
-                    priceInput.placeholder = '0';
+                    priceInput.placeholder = '0.00';
                     priceInput.setAttribute('aria-label', 'Price for ' + (item.name || ('Food ' + (index + 1))));
-                    priceInput.className = 'w-full pl-6 pr-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 font-mono-num text-sm font-semibold text-right text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition';
+                    priceInput.className = 'receipt-price-input w-full pl-6 pr-2.5 py-1.5 rounded-lg bg-stone-50 border border-stone-200 font-mono-num text-sm font-semibold text-right text-slate-900 focus:bg-white focus:border-orange-500 focus:outline-none transition';
 
                     priceInput.addEventListener('input', function (e) {
                         item.price = e.target.value;
@@ -579,11 +667,11 @@
                     priceWrap.appendChild(rupeeSymbol);
                     priceWrap.appendChild(priceInput);
 
-                    // Remove (×) Button
+                    // Remove (×) Button (Hidden in PDF Print)
                     var removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
                     removeBtn.setAttribute('aria-label', 'Remove item');
-                    removeBtn.className = 'w-7 h-7 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center text-base font-bold leading-none transition shrink-0 cursor-pointer';
+                    removeBtn.className = 'no-print w-7 h-7 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center text-base font-bold leading-none transition shrink-0 cursor-pointer';
                     removeBtn.textContent = '×';
                     removeBtn.addEventListener('click', function () {
                         removeFoodRow(item.id);
@@ -631,9 +719,10 @@
 
             function resetBill() {
                 state.items = [
-                    { id: 1, name: 'Food 1', price: '' }
+                    { id: 1, name: 'Food 1', price: '' },
+                    { id: 2, name: 'Food 2', price: '' }
                 ];
-                state.nextId = 2;
+                state.nextId = 3;
                 state.discountType = 'percent';
                 state.discountValue = '';
                 state.gstEnabled = true;
@@ -644,70 +733,18 @@
 
                 renderFoodList(1);
                 updateSummaryUI();
-                showToast('Bill reset to Food 1');
+                updateReceiptTimestamp();
+                showToast('Bill reset');
             }
 
-            function copyBillReceipt() {
-                var t = computeTotals();
-                var lines = [];
-                lines.push('🧾 FOOD BILL RECEIPT');
-                lines.push('------------------------');
-
-                state.items.forEach(function (item, idx) {
-                    var label = (item.name && item.name.trim()) ? item.name.trim() : ('Food ' + (idx + 1));
-                    var p = parseFloat(item.price);
-                    var priceNum = (!isNaN(p) && p > 0) ? p : 0;
-                    lines.push(label + ': ₹' + formatINR(priceNum));
-                });
-
-                lines.push('------------------------');
-                lines.push('Subtotal: ₹' + formatINR(t.subtotal));
-
-                if (t.discountAmount > 0) {
-                    var discSuffix = state.discountType === 'percent' ? (' (' + state.discountValue + '%)') : '';
-                    lines.push('Discount' + discSuffix + ': - ₹' + formatINR(t.discountAmount));
+            /* Trigger native browser Print / Save as PDF dialog */
+            function downloadPdfViaPrint() {
+                updateReceiptTimestamp();
+                // Blur any active input so mobile keyboards close cleanly before printing
+                if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                    document.activeElement.blur();
                 }
-
-                if (state.gstEnabled) {
-                    lines.push('GST (5%): + ₹' + formatINR(t.gstAmount));
-                    lines.push('  • CGST (2.5%): ₹' + formatINR(t.halfGst));
-                    lines.push('  • SGST (2.5%): ₹' + formatINR(t.halfGst));
-                } else {
-                    lines.push('GST (5%): OFF (₹0.00)');
-                }
-
-                lines.push('------------------------');
-                lines.push('GRAND TOTAL: ₹' + formatINR(t.grandTotal));
-
-                if (t.splitCount > 1) {
-                    lines.push('Split (' + t.splitCount + ' People): ₹' + formatINR(t.perPerson) + ' / person');
-                }
-
-                var receiptText = lines.join('\n');
-
-                // Copy via textarea + execCommand for reliable iframe/webview support
-                var textArea = document.createElement('textarea');
-                textArea.value = receiptText;
-                textArea.style.position = 'fixed';
-                textArea.style.top = '-9999px';
-                textArea.style.left = '-9999px';
-                document.body.appendChild(textArea);
-                textArea.focus();
-                textArea.select();
-
-                var copied = false;
-                try {
-                    copied = document.execCommand('copy');
-                } catch (err) {
-                    copied = false;
-                }
-                document.body.removeChild(textArea);
-
-                if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(receiptText).catch(function () {});
-                }
-
-                showToast('Receipt copied to clipboard!');
+                window.print();
             }
 
             function isIosDevice() {
@@ -814,6 +851,7 @@
 
             function bindEventsAndInit() {
                 loadState();
+                updateReceiptTimestamp();
 
                 // Sync initial discount input value
                 var discountInput = document.getElementById('discountInput');
@@ -882,10 +920,10 @@
                     });
                 }
 
-                // Copy Bill button
-                var copyBillBtn = document.getElementById('copyBillBtn');
-                if (copyBillBtn) {
-                    copyBillBtn.addEventListener('click', copyBillReceipt);
+                // Download PDF (Print Command) button
+                var downloadPdfBtn = document.getElementById('downloadPdfBtn');
+                if (downloadPdfBtn) {
+                    downloadPdfBtn.addEventListener('click', downloadPdfViaPrint);
                 }
 
                 // Install App button & Modal controls
