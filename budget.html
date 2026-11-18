@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delhi Rent-Free & Remote Monthly Budget</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --blue: #1a73e8;
+      --green: #0d904f;
+      --orange: #e37400;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .widget {
+      width: 100%;
+      max-width: 680px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      margin-bottom: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+
+    .surplus-positive { color: var(--green); }
+    .surplus-negative { color: var(--danger); }
+
+    .income-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .income-box label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1e3a8a;
+    }
+
+    .income-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #fff;
+      border: 1px solid #93c5fd;
+      border-radius: 8px;
+      padding: 6px 10px;
+    }
+
+    .income-input-wrap span {
+      font-weight: 600;
+      margin-right: 4px;
+      color: var(--muted);
+    }
+
+    .income-input-wrap input {
+      border: none;
+      outline: none;
+      width: 100px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .bar-wrap {
+      margin-bottom: 22px;
+    }
+
+    .bar-title {
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stacked-bar {
+      height: 12px;
+      width: 100%;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .bar-seg {
+      height: 100%;
+      transition: width 0.2s ease;
+    }
+
+    .category {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .slider-row {
+      margin-bottom: 14px;
+    }
+
+    .slider-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .slider-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.86rem;
+      margin-bottom: 6px;
+    }
+
+    .slider-meta span:first-child {
+      color: #334155;
+    }
+
+    .slider-meta span:last-child {
+      font-weight: 600;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .footer-note {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 540px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .income-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="widget">
+    <h1>Delhi Rent-Free & Remote Monthly Budget</h1>
+
+    <div class="summary-grid">
+      <div class="stat-box">
+        <div class="stat-label">Monthly surplus</div>
+        <div class="stat-value surplus-positive" id="surplusVal">₹14,500</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Monthly expenses</div>
+        <div class="stat-value" id="expenseVal">₹15,500</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Savings rate</div>
+        <div class="stat-value" id="rateVal">48.3%</div>
+      </div>
+    </div>
+
+    <div class="income-box">
+      <label for="incomeInput">Monthly take-home income (₹)</label>
+      <div class="income-input-wrap">
+        <span>₹</span>
+        <input type="number" id="incomeInput" value="30000" min="0" step="500" />
+      </div>
+    </div>
+
+    <div class="bar-wrap">
+      <div class="bar-title">Expense breakdown vs. remaining income</div>
+      <div class="stacked-bar">
+        <div class="bar-seg" id="barHousing" style="background: var(--blue);"></div>
+        <div class="bar-seg" id="barLiving" style="background: var(--green);"></div>
+        <div class="bar-seg" id="barLifestyle" style="background: var(--orange);"></div>
+      </div>
+    </div>
+
+    <div id="categoriesContainer"></div>
+
+    <p class="footer-note">
+      Surplus is calculated automatically. Notice how ₹0 rent keeps nearly half your income free.
+    </p>
+  </div>
+
+  <script>
+    const budgetData = [
+      {
+        key: "housing",
+        label: "Housing & Delhi Utilities",
+        color: "#1a73e8",
+        fields: [
+          { key: "rent", label: "Delhi Rent (₹0 now — slide to ₹14k to test 1BHK)", value: 0, min: 0, max: 25000, step: 500 },
+          { key: "utilities", label: "Electricity (AC/Subsidy), Broadband & Mobile", value: 2500, min: 500, max: 7000, step: 250 }
+        ]
+      },
+      {
+        key: "living",
+        label: "Food, Metro & Health",
+        color: "#0d904f",
+        fields: [
+          { key: "groceries", label: "Groceries & Daily Food", value: 5500, min: 2000, max: 12000, step: 500 },
+          { key: "transport", label: "Delhi Metro, Autos & Fuel", value: 1500, min: 500, max: 6000, step: 250 },
+          { key: "health", label: "Health Insurance & Gym", value: 1500, min: 500, max: 5000, step: 250 }
+        ]
+      },
+      {
+        key: "lifestyle",
+        label: "Dining, Hangouts & Personal",
+        color: "#e37400",
+        fields: [
+          { key: "dining", label: "Cafes, Street Food & Outings", value: 2500, min: 0, max: 10000, step: 500 },
+          { key: "shopping", label: "Shopping, Gadgets & Weekend Trips", value: 2000, min: 0, max: 10000, step: 500 }
+        ]
+      }
+    ];
+
+    const container = document.getElementById("categoriesContainer");
+    const incomeInput = document.getElementById("incomeInput");
+
+    function formatINR(num) {
+      return "₹" + num.toLocaleString("en-IN");
+    }
+
+    function renderSliders() {
+      container.innerHTML = "";
+      budgetData.forEach((cat, catIdx) => {
+        const card = document.createElement("div");
+        card.className = "category";
+
+        const header = document.createElement("div");
+        header.className = "cat-header";
+        header.innerHTML = `<span class="dot" style="background:${cat.color}"></span>${cat.label}`;
+        card.appendChild(header);
+
+        cat.fields.forEach((field, fieldIdx) => {
+          const row = document.createElement("div");
+          row.className = "slider-row";
+          row.innerHTML = `
+            <div class="slider-meta">
+              <span>${field.label}</span>
+              <span id="val-${catIdx}-${fieldIdx}">${formatINR(field.value)}</span>
+            </div>
+            <input
+              type="range"
+              min="${field.min}"
+              max="${field.max}"
+              step="${field.step}"
+              value="${field.value}"
+              style="accent-color:${cat.color}"
+              data-cat="${catIdx}"
+              data-field="${fieldIdx}"
+            />
+          `;
+          card.appendChild(row);
+        });
+
+        container.appendChild(card);
+      });
+
+      container.querySelectorAll('input[type="range"]').forEach((slider) => {
+        slider.addEventListener("input", (e) => {
+          const c = e.target.dataset.cat;
+          const f = e.target.dataset.field;
+          const val = Number(e.target.value);
+          budgetData[c].fields[f].value = val;
+          document.getElementById(`val-${c}-${f}`).textContent = formatINR(val);
+          updateTotals();
+        });
+      });
+    }
+
+    function updateTotals() {
+      const income = Math.max(0, Number(incomeInput.value) || 0);
+      const catTotals = budgetData.map((cat) =>
+        cat.fields.reduce((sum, f) => sum + f.value, 0)
+      );
+
+      const totalExpense = catTotals.reduce((a, b) => a + b, 0);
+      const surplus = income - totalExpense;
+      const savingsRate = income > 0 ? ((surplus / income) * 100).toFixed(1) : "0.0";
+
+      const surplusEl = document.getElementById("surplusVal");
+      surplusEl.textContent = (surplus < 0 ? "-" : "") + formatINR(Math.abs(surplus));
+      surplusEl.className = "stat-value " + (surplus >= 0 ? "surplus-positive" : "surplus-negative");
+
+      document.getElementById("expenseVal").textContent = formatINR(totalExpense);
+      document.getElementById("rateVal").textContent = savingsRate + "%";
+
+      const base = Math.max(income, totalExpense, 1);
+      document.getElementById("barHousing").style.width = ((catTotals[0] / base) * 100) + "%";
+      document.getElementById("barLiving").style.width = ((catTotals[1] / base) * 100) + "%";
+      document.getElementById("barLifestyle").style.width = ((catTotals[2] / base) * 100) + "%";
+    }
+
+    incomeInput.addEventListener("input", updateTotals);
+    renderSliders();
+    updateTotals();
+  </script>
+</body>
+</html>
