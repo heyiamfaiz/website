@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Monthly Budget Planner</title>
+  <title>Money Planner 🤑</title>
   <style>
     :root {
       --bg: #f8fafc;
@@ -42,9 +42,30 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     }
 
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
     h1 {
       font-size: 1.25rem;
-      margin-bottom: 18px;
+    }
+
+    .reset-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background: #e2e8f0;
     }
 
     .summary-grid {
@@ -211,20 +232,23 @@
 </head>
 <body>
   <div class="widget">
-    <h1>Money Planner 🤑</h1>
+    <div class="header-row">
+      <h1>Money Planner 🤑</h1>
+      <button class="reset-btn" id="resetBtn">Reset All to ₹0</button>
+    </div>
 
     <div class="summary-grid">
       <div class="stat-box">
         <div class="stat-label">Monthly surplus</div>
-        <div class="stat-value surplus-positive" id="surplusVal">₹14,500</div>
+        <div class="stat-value surplus-positive" id="surplusVal">₹0</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Monthly expenses</div>
-        <div class="stat-value" id="expenseVal">₹15,500</div>
+        <div class="stat-value" id="expenseVal">₹0</div>
       </div>
       <div class="stat-box">
         <div class="stat-label">Savings rate</div>
-        <div class="stat-value" id="rateVal">48.3%</div>
+        <div class="stat-value" id="rateVal">0.0%</div>
       </div>
     </div>
 
@@ -232,7 +256,7 @@
       <label for="incomeInput">Monthly take-home income (₹)</label>
       <div class="income-input-wrap">
         <span>₹</span>
-        <input type="number" id="incomeInput" value="30000" min="0" step="500" />
+        <input type="number" id="incomeInput" value="0" min="0" step="500" />
       </div>
     </div>
 
@@ -248,7 +272,7 @@
     <div id="categoriesContainer"></div>
 
     <p class="footer-note">
-      Surplus is calculated automatically. Notice how ₹0 rent keeps nearly half your income free.
+      Everything starts at ₹0. Enter your income and slide up only what you actually spend.
     </p>
   </div>
 
@@ -256,21 +280,21 @@
     const budgetData = [
       {
         key: "housing",
-        label: "Housing & Delhi Utilities",
+        label: "Housing & Utilities",
         color: "#1a73e8",
         fields: [
-          { key: "rent", label: "Delhi Rent (₹0 now — slide to ₹14k to test 1BHK)", value: 0, min: 0, max: 25000, step: 500 },
-          { key: "utilities", label: "Electricity (AC/Subsidy), Broadband & Mobile", value: 2500, min: 500, max: 7000, step: 250 }
+          { key: "rent", label: "Rent", value: 0, min: 0, max: 25000, step: 500 },
+          { key: "utilities", label: "Electricity, Broadband & Mobile", value: 0, min: 0, max: 7000, step: 250 }
         ]
       },
       {
         key: "living",
-        label: "Food, Metro & Health",
+        label: "Food, Travel & Health",
         color: "#0d904f",
         fields: [
-          { key: "groceries", label: "Groceries & Daily Food", value: 5500, min: 2000, max: 12000, step: 500 },
-          { key: "transport", label: "Delhi Metro, Autos & Fuel", value: 1500, min: 500, max: 6000, step: 250 },
-          { key: "health", label: "Health Insurance & Gym", value: 1500, min: 500, max: 5000, step: 250 }
+          { key: "groceries", label: "Groceries & Daily Food", value: 0, min: 0, max: 12000, step: 500 },
+          { key: "transport", label: "Metro, Autos & Fuel", value: 0, min: 0, max: 6000, step: 250 },
+          { key: "health", label: "Health Insurance & Gym", value: 0, min: 0, max: 5000, step: 250 }
         ]
       },
       {
@@ -278,14 +302,15 @@
         label: "Dining, Hangouts & Personal",
         color: "#e37400",
         fields: [
-          { key: "dining", label: "Cafes, Street Food & Outings", value: 2500, min: 0, max: 10000, step: 500 },
-          { key: "shopping", label: "Shopping, Gadgets & Weekend Trips", value: 2000, min: 0, max: 10000, step: 500 }
+          { key: "dining", label: "Cafes, Street Food & Outings", value: 0, min: 0, max: 10000, step: 500 },
+          { key: "shopping", label: "Shopping, Gadgets & Weekend Trips", value: 0, min: 0, max: 10000, step: 500 }
         ]
       }
     ];
 
     const container = document.getElementById("categoriesContainer");
     const incomeInput = document.getElementById("incomeInput");
+    const resetBtn = document.getElementById("resetBtn");
 
     function formatINR(num) {
       return "₹" + num.toLocaleString("en-IN");
@@ -361,6 +386,13 @@
       document.getElementById("barLiving").style.width = ((catTotals[1] / base) * 100) + "%";
       document.getElementById("barLifestyle").style.width = ((catTotals[2] / base) * 100) + "%";
     }
+
+    resetBtn.addEventListener("click", () => {
+      incomeInput.value = 0;
+      budgetData.forEach((cat) => cat.fields.forEach((f) => (f.value = 0)));
+      renderSliders();
+      updateTotals();
+    });
 
     incomeInput.addEventListener("input", updateTotals);
     renderSliders();
